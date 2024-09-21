@@ -36,7 +36,7 @@ module warlords_addr::warlords {
     const INITIAL_TURN: u8 = 2;
     const WEATHER_BONUS_MULTIPLIER: u64 = 15; // 15% bonus
     const TURNS_NEEDED_TO_MOBILIZE: u8 = 1; 
-    const TURNS_NEEDED_TO_ATTACK: u8 = 1;
+    const TURNS_NEEDED_TO_ATTACK: u8 = 3;
     
     // possible weather conditions that can be set
     const SUNNY: u8 = 0;
