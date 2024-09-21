@@ -33,10 +33,10 @@ module warlords_addr::warlords {
     const TICK_INTERVAL: u64 = 3600; // 1 hour in seconds
     const MAX_DEFENSE_SIZE: u64 = 1500;
     const MAX_ATTACKER_SIZE: u64 = 2000;
-    const INITIAL_TURN: u8 = 1;
+    const INITIAL_TURN: u8 = 2;
     const WEATHER_BONUS_MULTIPLIER: u64 = 15; // 15% bonus
     const TURNS_NEEDED_TO_MOBILIZE: u8 = 1; 
-    const TURNS_NEEDED_TO_ATTACK: u8 = 3;
+    const TURNS_NEEDED_TO_ATTACK: u8 = 1;
     
     // possible weather conditions that can be set
     const SUNNY: u8 = 0;
@@ -309,10 +309,19 @@ module warlords_addr::warlords {
         base_strength + weather_bonus
     }
 
+    public fun get_army_strength(army: &Army): u64 {
+        army.archers + army.cavalry + army.infantry
+    }
+
     // ======================== Unit Tests ========================
 
     #[test_only]
     public fun init_module_for_test(sender: &signer) {
         init_module(sender);
+    }
+
+    #[test_only]
+    public fun get_army_details(army: &Army): (u64, u64, u64) {
+        (army.archers, army.cavalry, army.infantry)
     }
 }
