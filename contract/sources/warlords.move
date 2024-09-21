@@ -5,7 +5,6 @@ module warlords_addr::warlords {
     use std::string::String;
     use std::vector;
     
-    use aptos_framework::object::{Self, Object};
     use aptos_framework::timestamp;
     use aptos_framework::event;
 
@@ -49,15 +48,15 @@ module warlords_addr::warlords {
 
     // Struct used as Global state for Castle Defense, 
     // Also used as Unique state for a player's Mobilized Army
-    struct Army has store {
+    struct Army has store, drop, copy {
         archers: u64,
         cavalry: u64,
         infantry: u64,
     }
 
     // Global state for Castle's weather
-    struct Weather has store {
-        value: u8
+    struct Weather has store, drop {
+        value: u8,
         last_weather_change: u64
     }
 
@@ -70,10 +69,10 @@ module warlords_addr::warlords {
 
     // Global State holding game state 
     struct GameState has key {
-        castle: Castle
+        castle: Castle,
         weatherman: address,
         number_of_attacks: u64,
-        game_turn: u64
+        game_turn: u64,
         last_tick_timestamp: u64,
         player_addresses: vector<address> // all the players that joined the game
     }
@@ -82,7 +81,7 @@ module warlords_addr::warlords {
     struct PlayerState has key {
         general_name: String,
         army: Army,
-        turns: u64,
+        turns: u8,
     }
 
     // ================================= Events ================================== //
@@ -127,7 +126,7 @@ module warlords_addr::warlords {
     /*
     *  
     */
-    public entry fun join_game(sender: &signer, general_name: String) acquires PlayerState, GameState {
+    public entry fun join_game(sender: &signer, general_name: String) acquires GameState {
         let sender_addr = signer::address_of(sender);
 
         assert!(!exists<PlayerState>(sender_addr), ERR_ALREADY_JOINED);
@@ -139,7 +138,7 @@ module warlords_addr::warlords {
         });
 
         // Add player address to the GameState
-        let game_state = borrow_global_mut<GameState>(@castle_game_addr);
+        let game_state = borrow_global_mut<GameState>(@warlords_addr);
         vector::push_back(&mut game_state.player_addresses, sender_addr);
     }
 
@@ -150,10 +149,10 @@ module warlords_addr::warlords {
         infantry: u64
     ) acquires PlayerState {
         let sender_addr = signer::address_of(sender);
-        assert!(exists<PlayerState>(sender_addr), ERR_NOT_JOINED)
+        assert!(exists<PlayerState>(sender_addr), ERR_NOT_JOINED);
 
         let player_state = borrow_global_mut<PlayerState>(sender_addr);
-        assert!(player_state.turn_count >= TURNS_NEEDED_TO_MOBILIZE, ERR_NO_TURNS_LEFT);
+        assert!(player_state.turns >= TURNS_NEEDED_TO_MOBILIZE, ERR_NOT_ENOUGH_TURNS);
 
         let army = Army { archers, cavalry, infantry };
         assert!(calculate_base_strength(&army) <= MAX_ATTACKER_SIZE, ERR_INVALID_ARMY_SIZE);
@@ -162,16 +161,16 @@ module warlords_addr::warlords {
         player_state.turns = player_state.turns - 1;
     }
 
-    ublic entry fun attack(sender: &signer) acquires PlayerState, GameState {
+    public entry fun attack(sender: &signer) acquires PlayerState, GameState {
 
         let sender_addr = signer::address_of(sender);
         let player_state = borrow_global_mut<PlayerState>(sender_addr);
 
         // players can only attack if they have enough turns 
-        assert!(player_state.turn_count >= TURNS_NEEDED_TO_ATTACK, ERR_NO_TURNS_LEFT);
+        assert!(player_state.turns >= TURNS_NEEDED_TO_ATTACK, ERR_NOT_ENOUGH_TURNS);
 
         // players cannot attack themselves
-        let game_state = borrow_global_mut<GameState>(@castle_game_addr);
+        let game_state = borrow_global_mut<GameState>(@warlords_addr);
         assert!(game_state.castle.king != sender_addr, ERR_CANNOT_ATTACK_SELF);
 
         let attacker_strength = calculate_effective_strength(&player_state.army, game_state.castle.weather.value);
@@ -181,16 +180,16 @@ module warlords_addr::warlords {
         let default_defense_army: Army = Army { archers: 500, cavalry: 500, infantry: 500 };
 
         if (attacker_strength > defender_strength) {
-            let old_king = game_state.castle.king;
+            // Attacker wins
             game_state.castle.king = sender_addr;
-            game_state.castle.defense = default_defense_army
+            game_state.castle.defense = default_defense_army;
             winner = sender_addr;
         } else {
             // Defender wins
             winner = game_state.castle.king;
         };
 
-        player_state.turn_count = player_state.turn_count - TURNS_NEEDED_TO_ATTACK;
+        player_state.turns = player_state.turns - TURNS_NEEDED_TO_ATTACK;
         game_state.number_of_attacks = game_state.number_of_attacks + 1;
 
         event::emit(AttackEvent {
@@ -206,7 +205,7 @@ module warlords_addr::warlords {
     public entry fun defend(sender: &signer, archers: u64, cavalry: u64, infantry: u64) acquires GameState {
 
         let sender_addr = signer::address_of(sender);
-        let game_state_mut = borrow_global_mut<GameState>(@castle_game_addr);
+        let game_state_mut = borrow_global_mut<GameState>(@warlords_addr);
 
         // only the current castle king can change the castle defense 
         assert!(game_state_mut.castle.king == sender_addr, ERR_NOT_KING);
@@ -221,7 +220,7 @@ module warlords_addr::warlords {
     public entry fun set_weather(sender: &signer, new_weather: u8) acquires GameState {
 
         let sender_addr = signer::address_of(sender);
-        let game_state_mut = borrow_global_mut<GameState>(@castle_game_addr);
+        let game_state_mut = borrow_global_mut<GameState>(@warlords_addr);
 
         // only the weatherman can set valid weather 
         assert!(game_state_mut.weatherman == sender_addr, ERR_NOT_WEATHERMAN);
@@ -235,28 +234,31 @@ module warlords_addr::warlords {
 
     public entry fun tick_tock() acquires GameState, PlayerState {
 
-        let game_state_mut = borrow_global_mut<GameState>(@castle_game_addr);
+        let game_state_mut = borrow_global_mut<GameState>(@warlords_addr);
         let current_time = timestamp::now_seconds();
+        let new_game_turn = game_state_mut.game_turn + 1;
 
         // make sure turns are not increased prematurely
         assert!(current_time >= game_state_mut.last_tick_timestamp + TICK_INTERVAL, ERR_TICK_TOO_SOON);
 
-        game_state_mut.last_tick_timestamp = current_time;
-        game_state_mut.game_turn = game_state_mut.game_turn + 1;
 
+        game_state_mut.last_tick_timestamp = current_time;
+        game_state_mut.game_turn = new_game_turn;
+        
         // go through all the players, and increase their turns 
 
-        let players = &game_state.player_addresses;
-        let len = vector::length(players);
+        let players = &game_state_mut.player_addresses;
+        let len = vector::length<address>(players);
 
         for (i in 0..len) {
             let addr = *vector::borrow(players, i);
             let player_state = borrow_global_mut<PlayerState>(addr);
-            player_state.turn_count = player_state.turn_count + 1;
+            player_state.turns = player_state.turns + 1;
         };
 
         event::emit(TickEvent {
             timestamp: current_time,
+            game_turn: new_game_turn
         });
     }
 
@@ -264,7 +266,7 @@ module warlords_addr::warlords {
 
     #[view]
     public fun get_castle_info(): (address, Army, u8) acquires GameState {
-        let game_state = borrow_global<GameState>(@castle_game_addr);
+        let game_state = borrow_global<GameState>(@warlords_addr);
         (
             game_state.castle.king,
             game_state.castle.defense,
@@ -273,15 +275,15 @@ module warlords_addr::warlords {
     }
 
     #[view]
-    public fun get_player_state(player: address): (String, Army, u64) acquires PlayerState {
+    public fun get_player_state(player: address): (String, Army, u8) acquires PlayerState {
         assert!(exists<PlayerState>(player), ERR_NOT_JOINED);
         let player_state = borrow_global<PlayerState>(player);
-        (player_state.general_name, player_state.army, player_state.turn_count)
+        (player_state.general_name, player_state.army, player_state.turns)
     }
 
     #[view]
     public fun get_last_tick_timestamp(): u64 acquires GameState {
-        let game_state = borrow_global<GameState>(@castle_game_addr);
+        let game_state = borrow_global<GameState>(@warlords_addr);
         game_state.last_tick_timestamp
     }
 
@@ -292,7 +294,7 @@ module warlords_addr::warlords {
     }
 
     fun calculate_effective_strength(army: &Army, weather: u8): u64 {
-        let base_strength = calculate_base_strength(&army);
+        let base_strength = calculate_base_strength(army);
         
         let weather_bonus = if (weather == SUNNY) {
             // Sunny: bonus for archers and cavalry
