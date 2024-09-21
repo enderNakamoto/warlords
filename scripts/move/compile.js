@@ -8,7 +8,7 @@ async function compile() {
     packageDirectoryPath: "contract",
     namedAddresses: {
       // Compile module with account address
-      message_board_addr: process.env.NEXT_MODULE_PUBLISHER_ACCOUNT_ADDRESS,
+      warlords_addr: process.env.NEXT_MODULE_PUBLISHER_ACCOUNT_ADDRESS,
     },
   });
 }
