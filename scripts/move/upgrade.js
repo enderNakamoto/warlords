@@ -16,7 +16,7 @@ async function publish() {
     objectAddress: process.env.NEXT_PUBLIC_MODULE_ADDRESS,
     namedAddresses: {
       // Upgrade module from an object
-      message_board_addr: process.env.NEXT_PUBLIC_MODULE_ADDRESS,
+      warlords_addr: process.env.NEXT_PUBLIC_MODULE_ADDRESS,
     },
     extraArguments: [`--private-key=${process.env.NEXT_MODULE_PUBLISHER_ACCOUNT_PRIVATE_KEY}`,`--url=${aptosSDK.NetworkToNodeAPI[process.env.NEXT_PUBLIC_APP_NETWORK]}`],
   });

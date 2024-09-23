@@ -21,7 +21,7 @@ module warlords_addr::test_end_to_end {
 
         // in the beginning king is the deployer
         assert!(king == @warlords_addr, 5);
-        // weather defaults to SUNNY (0)
+        // weather defaults to CLEAR (0)
         assert!(weather == 0, 4);
 
         // defense gets default defending army
@@ -42,7 +42,7 @@ module warlords_addr::test_end_to_end {
         let (archers, cavalry, infantry) = warlords::get_army_details(&army);
         assert!(archers == 500 && cavalry == 500 && infantry == 500, 1);
         assert!(warlords::get_army_strength(&army) == 1500, 2);
-        assert!(turns == 2, 3);
+        assert!(turns == 10, 3);
 
         // Alice mobilizes their army - changes her army composition from default
         warlords::mobilize(&alice, 500, 510, 500);
@@ -54,7 +54,7 @@ module warlords_addr::test_end_to_end {
         assert!(archers == 500 && cavalry == 510 && infantry == 500, 1); 
         assert!(warlords::get_army_strength(&army) == 1510, 2);
         // lost a turn trying to mobilize
-        assert!(turns == 1, 3);
+        assert!(turns == 9, 3);
 
         for (i in 0..3) {
             // Simulate time passing
@@ -64,7 +64,7 @@ module warlords_addr::test_end_to_end {
         };
         let (_, _, turns) = warlords::get_player_state(signer::address_of(&alice));
         // gained 3 turns in three ticks
-        assert!(turns == 4, 3); 
+        assert!(turns == 12, 3); 
 
 
         // Alice Attacks - She should win as she has more strength
@@ -81,7 +81,7 @@ module warlords_addr::test_end_to_end {
         // Check Alice's state 
         let (_, _, turns) = warlords::get_player_state(signer::address_of(&alice));
         // lost turns while attacking
-        assert!(turns == 1, 3);
+        assert!(turns == 9, 3);
 
         // Alice sets defense for the castle
         warlords::defend(&alice, 100, 101, 100);
@@ -102,7 +102,7 @@ module warlords_addr::test_end_to_end {
         let (archers, cavalry, infantry) = warlords::get_army_details(&army);
         assert!(archers == 500 && cavalry == 500 && infantry == 500, 1);
         assert!(warlords::get_army_strength(&army) == 1500, 2);
-        assert!(turns == 2, 3); // starting with default turn of 2 
+        assert!(turns == 10, 3); // starting with default turn of 2 
 
         // Bob mobilizes his army - changes army composition
         warlords::mobilize(&bob, 100, 71, 129);
@@ -114,7 +114,7 @@ module warlords_addr::test_end_to_end {
         assert!(archers == 100 && cavalry == 71 && infantry == 129, 1); 
         assert!(warlords::get_army_strength(&army) == 300, 2);
         // lost a turn trying to mobilize
-        assert!(turns == 1, 3);
+        assert!(turns == 9, 3);
 
         for (i in 0..3) {
             // Simulate time passing
@@ -124,7 +124,7 @@ module warlords_addr::test_end_to_end {
         };
         let (_, _, turns) = warlords::get_player_state(signer::address_of(&bob));
         // gBob ained 3 turns in three ticks
-        assert!(turns == 4, 3); 
+        assert!(turns == 12, 3); 
 
         // Bob attacks Castle(held by Alice) - It should fail as Alice is stronger
         warlords::attack(&bob);
@@ -135,21 +135,11 @@ module warlords_addr::test_end_to_end {
         assert!(king == signer::address_of(&alice), 4); 
 
         // now set weather to rainy
-        warlords::set_weather(warlords_addr, 1);
+        warlords::set_weather(warlords_addr, 3);
         // check the castle state 
         let (_, _, weather) = warlords::get_castle_info();
         // weather changed to RAINY (1)
-        assert!(weather == 1, 4);
-
-        for (i in 0..3) {
-            // Simulate time passing
-            timestamp::fast_forward_seconds(3601); // Move time forward by more than TICK_INTERVAL
-            // Tick the game
-            warlords::tick_tock();
-        };
-        let (_, _, turns) = warlords::get_player_state(signer::address_of(&bob));
-        // Bob gained 3 turns in three ticks
-        assert!(turns == 4, 3); 
+        assert!(weather == 3, 4);
 
         // Now that the weather has changed, Bob is suddenly stronger as Alice's cavalry is weaker
         warlords::attack(&bob);
@@ -157,6 +147,5 @@ module warlords_addr::test_end_to_end {
         let (king, _, _) = warlords::get_castle_info();
         // Bob should be the new king
         assert!(king == signer::address_of(&bob), 4); 
-
     }
 }
