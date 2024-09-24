@@ -1,0 +1,1 @@
+self.__REACT_LOADABLE_MANIFEST="{\"../node_modules/@atomrigslab/aptos-wallet-adapter/dist/index.es.js -> ./index-DRmafxZ_.mjs\":{\"id\":\"../node_modules/@atomrigslab/aptos-wallet-adapter/dist/index.es.js -> ./index-DRmafxZ_.mjs\",\"files\":[\"static/chunks/_app-pages-browser_node_modules_atomrigslab_aptos-wallet-adapter_dist_index-DRmafxZ__mjs.js\"]}}"

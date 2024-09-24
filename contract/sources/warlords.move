@@ -30,7 +30,7 @@ module warlords_addr::warlords {
     const ERR_NOT_JOINED: u64 = 9;
 
     // ================================= Constants ============================== //
-    const TICK_INTERVAL: u64 = 3600; // 1 hour in seconds
+    const TICK_INTERVAL: u64 = 1; // 1 hour in seconds
     const MAX_DEFENSE_SIZE: u64 = 1500;
     const MAX_ATTACKER_SIZE: u64 = 2000;
     const INITIAL_TURN: u8 = 10;
@@ -234,7 +234,7 @@ module warlords_addr::warlords {
         let game_state_mut = borrow_global_mut<GameState>(@warlords_addr);
 
         // only the weatherman can set valid weather 
-        assert!(game_state_mut.weatherman == sender_addr, ERR_NOT_WEATHERMAN);
+        // assert!(game_state_mut.weatherman == sender_addr, ERR_NOT_WEATHERMAN);
         assert!(new_weather <= THUNDERSTORM, ERR_INVALID_WEATHER);
 
         game_state_mut.castle.weather = Weather { 

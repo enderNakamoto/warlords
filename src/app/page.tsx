@@ -2,13 +2,16 @@
 
 import { AccountInfo } from "@/components/AccountInfo";
 import { Header } from "@/components/Header";
-import { MessageBoard } from "@/components/MessageBoard";
+import { JoinGame } from "@/components/JoinGame";
+import { MobilizeArmy } from "@/components/MobilizeArmy"
+import { AttackCastle } from "@/components/Attack"
 import { NetworkInfo } from "@/components/NetworkInfo";
-import { TransferAPT } from "@/components/TransferAPT";
 import { WalletDetails } from "@/components/WalletDetails";
 // Internal Components
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
+import CastleInfo from '@/components/CastleInfo';
+
 
 function App() {
   const { connected } = useWallet();
@@ -23,8 +26,10 @@ function App() {
               <WalletDetails />
               <NetworkInfo />
               <AccountInfo />
-              <TransferAPT />
-              <MessageBoard />
+              <CastleInfo />
+              <JoinGame />
+              <MobilizeArmy/>
+              <AttackCastle/>
             </CardContent>
           </Card>
         ) : (
