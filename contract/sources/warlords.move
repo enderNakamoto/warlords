@@ -33,10 +33,10 @@ module warlords_addr::warlords {
     const TICK_INTERVAL: u64 = 1; // 1 hour in seconds
     const MAX_DEFENSE_SIZE: u64 = 1500;
     const MAX_ATTACKER_SIZE: u64 = 2000;
-    const INITIAL_TURN: u8 = 10;
+    const INITIAL_TURN: u64 = 10;
     const WEATHER_BONUS_MULTIPLIER: u64 = 15; // 15% bonus
-    const TURNS_NEEDED_TO_MOBILIZE: u8 = 1; 
-    const TURNS_NEEDED_TO_ATTACK: u8 = 3;
+    const TURNS_NEEDED_TO_MOBILIZE: u64 = 1; 
+    const TURNS_NEEDED_TO_ATTACK: u64 = 3;
     
     // possible weather conditions that can be set
     const CLEAR: u8 = 0;
@@ -92,7 +92,8 @@ module warlords_addr::warlords {
     struct PlayerState has key {
         general_name: String,
         army: Army,
-        turns: u8,
+        turns: u64,
+        points : u64
     }
 
     // ================================= Events ================================== //
@@ -146,6 +147,7 @@ module warlords_addr::warlords {
             general_name: general_name,
             army: Army { archers: 500, cavalry: 500, infantry: 500 },
             turns: INITIAL_TURN,
+            points: 0
         });
 
         // Add player address to the GameState
@@ -172,19 +174,19 @@ module warlords_addr::warlords {
         player_state.turns = player_state.turns - 1;
     }
 
-    public entry fun attack(sender: &signer) acquires PlayerState, GameState {
+    public entry fun attack(attacker: &signer) acquires PlayerState, GameState {
 
-        let sender_addr = signer::address_of(sender);
-        let player_state = borrow_global_mut<PlayerState>(sender_addr);
+        let attacker_addr = signer::address_of(attacker);
+        let attacker_state = borrow_global_mut<PlayerState>(attacker_addr);
 
         // players can only attack if they have enough turns 
-        assert!(player_state.turns >= TURNS_NEEDED_TO_ATTACK, ERR_NOT_ENOUGH_TURNS);
+        assert!(attacker_state.turns >= TURNS_NEEDED_TO_ATTACK, ERR_NOT_ENOUGH_TURNS);
 
         // players cannot attack themselves
         let game_state = borrow_global_mut<GameState>(@warlords_addr);
-        assert!(game_state.castle.king != sender_addr, ERR_CANNOT_ATTACK_SELF);
+        assert!(game_state.castle.king != attacker_addr, ERR_CANNOT_ATTACK_SELF);
 
-        let attacker_strength = calculate_effective_strength(&player_state.army, game_state.castle.weather.value);
+        let attacker_strength = calculate_effective_strength(&attacker_state.army, game_state.castle.weather.value);
         let defender_strength = calculate_effective_strength(&game_state.castle.defense, game_state.castle.weather.value);
 
         let winner: address;
@@ -192,21 +194,22 @@ module warlords_addr::warlords {
 
         if (attacker_strength > defender_strength) {
             // Attacker wins
-            game_state.castle.king = sender_addr;
+            game_state.castle.king = attacker_addr;
             game_state.castle.defense = default_defense_army;
-            winner = sender_addr;
+            winner = attacker_addr;
+            attacker_state.points = attacker_state.points + 1;
         } else {
             // Defender wins
             winner = game_state.castle.king;
         };
 
-        player_state.turns = player_state.turns - TURNS_NEEDED_TO_ATTACK;
+        attacker_state.turns = attacker_state.turns - TURNS_NEEDED_TO_ATTACK;
         game_state.number_of_attacks = game_state.number_of_attacks + 1;
 
         event::emit(AttackEvent {
-            attacker: sender_addr,
+            attacker: attacker_addr,
             defender: game_state.castle.king,
-            attacker_army: player_state.army,
+            attacker_army: attacker_state.army,
             defender_army: game_state.castle.defense,
             winner,
         });
@@ -230,7 +233,7 @@ module warlords_addr::warlords {
 
     public entry fun set_weather(sender: &signer, new_weather: u8) acquires GameState {
 
-        let sender_addr = signer::address_of(sender);
+        // let sender_addr = signer::address_of(sender);
         let game_state_mut = borrow_global_mut<GameState>(@warlords_addr);
 
         // only the weatherman can set valid weather 
@@ -286,10 +289,10 @@ module warlords_addr::warlords {
     }
 
     #[view]
-    public fun get_player_state(player: address): (String, Army, u8) acquires PlayerState {
+    public fun get_player_state(player: address): (String, Army, u64, u64) acquires PlayerState {
         assert!(exists<PlayerState>(player), ERR_NOT_JOINED);
         let player_state = borrow_global<PlayerState>(player);
-        (player_state.general_name, player_state.army, player_state.turns)
+        (player_state.general_name, player_state.army, player_state.turns, player_state.points)
     }
 
     #[view]

@@ -2,15 +2,20 @@
 
 import { AccountInfo } from "@/components/AccountInfo";
 import { Header } from "@/components/Header";
+
+// game stuff 
 import { JoinGame } from "@/components/JoinGame";
 import { MobilizeArmy } from "@/components/MobilizeArmy"
 import { AttackCastle } from "@/components/Attack"
+import { CastleInfo } from '@/components/CastleInfo';
+import {PlayerStateDisplay} from '@/components/PlayerState';
+
 import { NetworkInfo } from "@/components/NetworkInfo";
 import { WalletDetails } from "@/components/WalletDetails";
 // Internal Components
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
-import CastleInfo from '@/components/CastleInfo';
+
 
 
 function App() {
@@ -27,6 +32,7 @@ function App() {
               <NetworkInfo />
               <AccountInfo />
               <CastleInfo />
+              <PlayerStateDisplay />
               <JoinGame />
               <MobilizeArmy/>
               <AttackCastle/>

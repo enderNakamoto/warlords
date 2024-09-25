@@ -37,24 +37,26 @@ module warlords_addr::test_end_to_end {
         warlords::join_game(&alice, string::utf8(b"Napoleon"));
 
         // Check player status for Alice after joining! 
-        let (general, army, turns) = warlords::get_player_state(signer::address_of(&alice));
+        let (general, army, turns, points) = warlords::get_player_state(signer::address_of(&alice));
         assert!(general == string::utf8(b"Napoleon"), 0);
         let (archers, cavalry, infantry) = warlords::get_army_details(&army);
         assert!(archers == 500 && cavalry == 500 && infantry == 500, 1);
         assert!(warlords::get_army_strength(&army) == 1500, 2);
         assert!(turns == 10, 3);
+        assert!(points == 0, 4);
 
         // Alice mobilizes their army - changes her army composition from default
         warlords::mobilize(&alice, 500, 510, 500);
 
         // Check player state for Alice after mobilization 
-        let (_, army, turns) = warlords::get_player_state(signer::address_of(&alice));
+        let (_, army, turns, points) = warlords::get_player_state(signer::address_of(&alice));
         let (archers, cavalry, infantry) = warlords::get_army_details(&army);
         // army composition changed
         assert!(archers == 500 && cavalry == 510 && infantry == 500, 1); 
         assert!(warlords::get_army_strength(&army) == 1510, 2);
         // lost a turn trying to mobilize
         assert!(turns == 9, 3);
+        assert!(points == 0, 4);
 
         for (i in 0..3) {
             // Simulate time passing
@@ -62,7 +64,7 @@ module warlords_addr::test_end_to_end {
             // Tick the game
             warlords::tick_tock();
         };
-        let (_, _, turns) = warlords::get_player_state(signer::address_of(&alice));
+        let (_, _, turns, _) = warlords::get_player_state(signer::address_of(&alice));
         // gained 3 turns in three ticks
         assert!(turns == 12, 3); 
 
@@ -79,9 +81,11 @@ module warlords_addr::test_end_to_end {
         assert!(archers == 500 && cavalry == 500 && infantry == 500, 1);
 
         // Check Alice's state 
-        let (_, _, turns) = warlords::get_player_state(signer::address_of(&alice));
+        let (_, _, turns, points) = warlords::get_player_state(signer::address_of(&alice));
         // lost turns while attacking
         assert!(turns == 9, 3);
+        // gained points for winning
+        assert!(points == 1, 4);
 
         // Alice sets defense for the castle
         warlords::defend(&alice, 100, 101, 100);
@@ -97,18 +101,19 @@ module warlords_addr::test_end_to_end {
         warlords::join_game(&bob, string::utf8(b"Brutus"));
 
         // Check player status for Bob after joining! 
-        let (general, army, turns) = warlords::get_player_state(signer::address_of(&bob));
+        let (general, army, turns, points) = warlords::get_player_state(signer::address_of(&bob));
         assert!(general == string::utf8(b"Brutus"), 0);
         let (archers, cavalry, infantry) = warlords::get_army_details(&army);
         assert!(archers == 500 && cavalry == 500 && infantry == 500, 1);
         assert!(warlords::get_army_strength(&army) == 1500, 2);
         assert!(turns == 10, 3); // starting with default turn of 2 
+        assert!(points == 0, 4);
 
         // Bob mobilizes his army - changes army composition
         warlords::mobilize(&bob, 100, 71, 129);
 
         // Check player state for Bob after mobilization 
-        let (_, army, turns) = warlords::get_player_state(signer::address_of(&bob));
+        let (_, army, turns, _) = warlords::get_player_state(signer::address_of(&bob));
         let (archers, cavalry, infantry) = warlords::get_army_details(&army);
         // army composition changed
         assert!(archers == 100 && cavalry == 71 && infantry == 129, 1); 
@@ -122,8 +127,8 @@ module warlords_addr::test_end_to_end {
             // Tick the game
             warlords::tick_tock();
         };
-        let (_, _, turns) = warlords::get_player_state(signer::address_of(&bob));
-        // gBob ained 3 turns in three ticks
+        let (_, _, turns, _) = warlords::get_player_state(signer::address_of(&bob));
+        // Bob ained 3 turns in three ticks
         assert!(turns == 12, 3); 
 
         // Bob attacks Castle(held by Alice) - It should fail as Alice is stronger

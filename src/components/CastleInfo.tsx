@@ -14,7 +14,7 @@ interface CastleDetails {
   weatherValue: number;
 }
 
-const CastleInfo: React.FC = () => {
+export const CastleInfo: React.FC = () => {
   const [castleDetails, setCastleDetails] = useState<CastleDetails | null>(null);
 
   const [loading, setLoading] = useState(true);
@@ -55,5 +55,3 @@ const CastleInfo: React.FC = () => {
     </div>
   );
 };
-
-export default CastleInfo;
