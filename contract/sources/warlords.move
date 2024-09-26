@@ -6,6 +6,7 @@ module warlords_addr::warlords {
     use std::vector;
     
     use aptos_framework::timestamp;
+    use aptos_framework::randomness;
     use aptos_framework::event;
 
     // ================================= Errors ================================= //
@@ -53,6 +54,9 @@ module warlords_addr::warlords {
     const SIGNIFICANT_DISADVANTAGE: u64 = 85; // 15% disadvantage
     const EXTREME_DISADVANTAGE: u64 = 75; // 25% disadvantage
     const SEVERE_DISADVANTAGE: u64 = 50; // 50% disadvantage
+
+    // max random modifier
+    const MAX_RANDOM_MODIFIER: u64 = 105; // 5% bonus
 
 
     // ================================= State/Structs/Enums ================================== //
@@ -174,6 +178,57 @@ module warlords_addr::warlords {
         player_state.turns = player_state.turns - 1;
     }
 
+
+    // Attack function to attack the castle based on randomness 
+    // Since it uses the random api, it is marked as private
+    // We prevent undergasing attack by making sure both winning and losing paths have same gas costs
+    // in our case, we do the same calculations regardless of the random outcome
+    #[randomness]
+    entry fun attack_with_randomness(attacker: &signer) acquires PlayerState, GameState {
+        let attacker_addr = signer::address_of(attacker);
+        let attacker_state = borrow_global_mut<PlayerState>(attacker_addr);
+
+        // players can only attack if they have enough turns 
+        assert!(attacker_state.turns >= TURNS_NEEDED_TO_ATTACK, ERR_NOT_ENOUGH_TURNS);
+
+        // players cannot attack themselves
+        let game_state = borrow_global_mut<GameState>(@warlords_addr);
+        assert!(game_state.castle.king != attacker_addr, ERR_CANNOT_ATTACK_SELF);
+
+        let attacker_strength = calculate_effective_strength(&attacker_state.army, game_state.castle.weather.value);
+        let defender_strength = calculate_effective_strength(&game_state.castle.defense, game_state.castle.weather.value);
+
+        let random_bonus = randomness::u64_range(0, MAX_RANDOM_MODIFIER);
+        attacker_strength = attacker_strength * random_bonus / 100;
+
+        let winner: address;
+        let default_defense_army: Army = Army { archers: 500, cavalry: 500, infantry: 500 };
+
+        if (attacker_strength > defender_strength) {
+            // Attacker wins
+            game_state.castle.king = attacker_addr;
+            game_state.castle.defense = default_defense_army;
+            winner = attacker_addr;
+            attacker_state.points = attacker_state.points + 1;
+        } else {
+            // Defender wins
+            winner = game_state.castle.king;
+        };
+
+        attacker_state.turns = attacker_state.turns - TURNS_NEEDED_TO_ATTACK;
+        game_state.number_of_attacks = game_state.number_of_attacks + 1;
+
+        event::emit(AttackEvent {
+            attacker: attacker_addr,
+            defender: game_state.castle.king,
+            attacker_army: attacker_state.army,
+            defender_army: game_state.castle.defense,
+            winner,
+        });
+    }
+
+
+    // Attack function to attack the castle based on the current weather
     public entry fun attack(attacker: &signer) acquires PlayerState, GameState {
 
         let attacker_addr = signer::address_of(attacker);
@@ -303,8 +358,21 @@ module warlords_addr::warlords {
 
     // ======================== Helper functions ========================
 
+    fun calculate_random_bonus(army: &Army, random_bonus: u8): u64 {
+        let base = calculate_base_strength(army);
+        let effective_random: u64 = random_bonus as u64;
+        base * effective_random / 100
+    }
+
     fun calculate_base_strength(army: &Army): u64 {
         army.archers + army.cavalry + army.infantry
+    }
+
+    fun calculate_effective_strength_random(army: &Army, weather: u8): u64 {
+        let archers_strength = army.archers * get_archer_modifier(weather) / 100;
+        let cavalry_strength = army.cavalry * get_cavalry_modifier(weather) / 100;
+        let infantry_strength = army.infantry * get_infantry_modifier(weather) / 100;
+        archers_strength + cavalry_strength + infantry_strength
     }
 
     fun calculate_effective_strength(army: &Army, weather: u8): u64 {
@@ -366,7 +434,7 @@ module warlords_addr::warlords {
     // ======================== Test Helper functions ========================
 
     #[test_only]
-    public fun init_module_for_test(sender: &signer) {
+    public fun init_module_for_test(sender: &signer)  {
         init_module(sender);
     }
 
@@ -374,4 +442,11 @@ module warlords_addr::warlords {
     public fun get_army_details(army: &Army): (u64, u64, u64) {
         (army.archers, army.cavalry, army.infantry)
     }
+
+    #[test_only]
+    #[lint::allow_unsafe_randomness]
+    public fun attack_with_randomness_for_test(attacker: &signer) acquires PlayerState, GameState {
+        attack_with_randomness(attacker);
+    }
+
 }

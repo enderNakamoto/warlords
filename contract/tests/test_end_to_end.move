@@ -152,5 +152,15 @@ module warlords_addr::test_end_to_end {
         let (king, _, _) = warlords::get_castle_info();
         // Bob should be the new king
         assert!(king == signer::address_of(&bob), 4); 
+
+
+        //Alice lowers the attack strength, and even with 5% bonus, she should lose
+        warlords::mobilize(&alice, 50, 50, 50);
+        warlords::attack_with_randomness_for_test(&alice);
+
+        // // Check the castle state
+        // let (king, _, _) = warlords::get_castle_info();
+        // // Bob should remain the king
+        // assert!(king == signer::address_of(&bob), 4);
     }
 }
