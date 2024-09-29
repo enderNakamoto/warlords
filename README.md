@@ -18,6 +18,28 @@ The Scripts in Acurast Trusted Execution Environment (TEE) handles the following
 * Update Weather Conditions (every 6 hours)
 * Set Player Turns (for all registered players, every hour)
 
+## Quick Start 
+
+- Download the project
+
+- cd into project's folder
+
+- Create .env file by example and fill required values (NEXT_PUBLIC_MODULE_ADDRESS is not required)
+
+- Run:
+
+```
+
+npm install
+
+npm run move:publish
+
+npm run dev
+
+```
+
+Boilerplate info: https://aptos.dev/en/build/create-aptos-dapp/templates/boilerplate
+
 ## Game Architecture
 
 The following diagram shows all the public entry functions and the oracle/keeper data flow: 
