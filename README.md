@@ -2,9 +2,9 @@
 
 ## Introduction  
 
-Shogun is a fully on-chain game that integrates the Acurast network, bringing real-world data on-chain in a decentralized and trust-minimized way. The core innovation of this project is leveraging Acurast's Trusted Execution Environment (TEE) to run Node.js scripts, making it an oracle for non-financial data, such as weather conditions. In our case, we retrieve weather data from the OpenWeather API with minimal trust assumptions. Additionally, Acurast processors act as decentralized keepers by running scheduled cron jobs.
+Shogun is a fully on-chain game on Aptos L1 written in Move. The core innovation of this project is leveraging [Acurast](https://docs.acurast.com) to run Node.js scripts, making it an oracle for non-financial data, such as weather conditions. In our case, we retrieve weather data from the OpenWeather API with minimal trust assumptions that affects the in-game battle mechanics. Additionally, Acurast processors act as decentralized keepers by running scheduled cron jobs.
 
-Set in the Edo period of Japan, the goal of the game is to gain control of Edo Castle. Real-time weather conditions in Tokyo directly affect gameplay and strategy—rain stunts cavalry charges but empowers infantry, while clear skies provide an extra bonus to cavalry, enhancing their effectiveness in battle.
+Set in the Edo period of Japan, the goal of the game is to gain control of Edo Castle. Real-time weather conditions in Tokyo(Edo) directly affect gameplay and strategy, e.g. rain stunts cavalry charges but empowers infantry, while clear skies provide an extra bonus to cavalry, enhancing their effectiveness in battle.
 
 Here are the main actions a player can take:
 
@@ -18,6 +18,34 @@ The Scripts in Acurast Trusted Execution Environment (TEE) handles the following
 * Update Weather Conditions (every three hours)
 * Set Player Turns (for all registered players, every hour)
 
+## Game Architecture
+
+The following diagram shows all the public entry functions and the oracle/keeper data flow: 
+
+![alt text](images/architecture.png)
+
+## Acurast Integration and trust assumptions
+
+Acurast is a decentralized and trustless compute execution layer, leveraging Trust Execution Environments opening up the capability to have Acurast’s Processors (off-chain workers) fetch, sign and submit data on-chain completely trustless and confidential. The processors are highly decentralized and uses processing power of old mobile phones. 
+
+For our proof of concept, deployed nodejs script on a Acurast processor fetches that weather data from [openweathermap api](https://openweathermap.org/current). Assuming that the data from Openweather API is correct, the data is forwarded to the game smart contract (move module) without additional trust overhead. It is signed by a preassigned weatherman, verifying that the incoming data comes from the acurast processor. 
+
+The acurast data sets the weather condition to one of the following options, based on the [weather condition codes of the api](https://openweathermap.org/weather-conditions)
+
+```rust
+    const CLEAR: u8 = 0;
+    const CLOUDS: u8 = 1;
+    const SNOW: u8 = 2;
+    const RAIN: u8 = 3;
+    const DRIZZLE: u8 = 4;
+    const THUNDERSTORM: u8 = 5;
+```
+Each weather condition affects the effectiveness of the units, adding a layer of strategy to the game. 
+
+Moreover, we also use a second script to call `tick_tock()` function of the module to update player states every turn. This is a proof of concept use of Acurast processors as keepers. This function is not gated (anyone call this), however there is an internal check that only affects the game state if it is called after 1 hr has passed. In the future, we can offer a small bounty for bots to call this every hour -- turning it into a robust decentralized keeper.
+
+Note: You can find out more on Acurast's trust minimized processing [here](https://docs.acurast.com/acurast-protocol/architecture/end-to-end/)
+
 ## Implementation details - Game rules
 
 When a player joins the game, they start with 10 turns and a default attacking army of 500 archers, 500 cavalry, and 500 infantry. Players can mobilize and change their army composition at any time for a cost of 3 turns, with a maximum total army size of 2,000 units.
@@ -28,11 +56,6 @@ If a player wins the battle, they become the next Shogun of Tokyo, gaining the a
 
 The game resets every 365 turns, which equates to one in-game year (approximately 15 real-life days). At the end of each game year, the player with the most points on the leaderboard wins. The first and current year is named the "Year of the Satoshi Nakamoto".
 
-## Game Architecture
-
-The following diagram shows all the public entry functions and the oracle/keeper data flow: 
-
-![alt text](images/architecture.png)
 
 ## Future Game Enhancements:
 
@@ -44,8 +67,7 @@ Sky is the limit when it comes to addition of game features. However, the main t
 
 * cACU and APT tokens are needed for Acurast Processors to run the oracles and keepers. The treasury money will be allocated for that.
 
-* Multiple Castles can be added, each with unique weather associated to it's location. For someone to be Shogun, they will have to be holding majority of the castles, instead of just 1. 
-
+* Multiple Castles can be added, each with unique weather associated to it's location. For someone to be Shogun, they will have to be holding majority of the castles, instead of just one.
 
 ## Tools used
 
