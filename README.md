@@ -1,38 +1,46 @@
-## Create Aptos Dapp Boilerplate Template
 
-The Boilerplate template provides a starter dapp with all necessary dapp infrastructure and a simple wallet info implementation, transfer APT and a simple message board functionality to send and read a message on chain.
+## Introduction  
 
-## Read the Boilerplate template docs
-To get started with the Boilerplate template and learn more about the template functionality and usage, head over to the [Boilerplate template docs](https://aptos.dev/en/build/create-aptos-dapp/templates/boilerplate) 
+Shogun is a fully on-chain game that integrates the Acurast network, bringing real-world data on-chain in a decentralized and trust-minimized way. The core innovation of this project is leveraging Acurast's Trusted Execution Environment (TEE) to run Node.js scripts, making it an oracle for non-financial data, such as weather conditions. In our case, we retrieve weather data from the OpenWeather API with minimal trust assumptions. Additionally, Acurast processors act as decentralized keepers by running scheduled cron jobs.
 
+Set in the Edo period of Japan, the goal of the game is to gain control of Edo Castle. Real-time weather conditions in Tokyo directly affect gameplay and strategy—rain stunts cavalry charges but empowers infantry, while clear skies provide an extra bonus to cavalry, enhancing their effectiveness in battle.
 
-## The Boilerplate template provides:
+Here are the main actions a player can take:
 
-- **Folder structure** - A pre-made dapp folder structure with a `src` (frontend) and `contract` folders.
-- **Dapp infrastructure** - All required dependencies a dapp needs to start building on the Aptos network.
-- **Wallet Info implementation** - Pre-made `WalletInfo` components to demonstrate how one can use to read a connected Wallet info.
-- **Trasnfer APT implementation** - Pre-made `transfer` components to send APT to an address.
-- **Message board functionality implementation** - Pre-made `message` components to send and read a message on chain
+* Join the Game
+* Set Castle Defense (only the current Daimyo, the lord of the castle, can do this)
+* Attack
+* Mobilize Army (determine the composition of the attacking army)
 
+The Scripts in Acurast Trusted Execution Environment (TEE) handles the following tasks:
 
-## What tools the template uses?
+* Update Weather Conditions (every three hours)
+* Set Player Turns (for all registered players, every hour)
 
-- React framework
+## Implementation details - Game rules
+
+When a player joins the game, they start with 10 turns and a default attacking army of 500 archers, 500 cavalry, and 500 infantry. Players can mobilize and change their army composition at any time for a cost of 3 turns, with a maximum total army size of 2,000 units.
+
+Players can attack Edo Castle (Tokyo) at the cost of 10 turns. The Acurast Keepers (cron jobs) ensure that players receive one turn every hour, with each turn representing one in-game day.
+
+If a player wins the battle, they become the next Shogun of Tokyo, gaining the ability to set the defense of the castle (an army of up to 1,600 units). A player cannot attack themselves, and each successful attack earns 1 point. These points determine a player's rank on the leaderboard. Once a player wins the castle, they cannot be attacked for 2 turns, giving the player a chance to set custom defense.
+
+The game resets every 365 turns, which equates to one in-game year (approximately 15 real-life days). At the end of each game year, the player with the most points wins. The first and current age is named the "Age of the Satoshi Nakamoto" in honor of the founder.
+
+## Tools used
+
+- NextJs
 - shadcn/ui + tailwind for styling
 - Aptos TS SDK
 - Aptos Wallet Adapter
-- Node based Move commands
+- Move Smart contracts 
+- Acurast TEE Oracles (Nodejs Scripts running in Acurat processors)
 
-## What Move commands are available?
-
-The tool utilizes [aptos-cli npm package](https://github.com/aptos-labs/aptos-cli) that lets us run Aptos CLI in a Node environment.
-
-Some commands are built-in the template and can be ran as a npm script, for example:
+## Available commands
 
 - `npm run move:publish` - a command to publish the Move contract
+- `npm run dev` - a command to start localhost 
 - `npm run move:test` - a command to run Move unit tests
 - `npm run move:compile` - a command to compile the Move contract
 - `npm run move:upgrade` - a command to upgrade the Move contract
 - `npm run deploy` - a command to deploy the dapp to Vercel
-
-For all other available CLI commands, can run `npx aptos` and see a list of all available commands.
