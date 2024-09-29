@@ -1,3 +1,4 @@
+![alt text](images/cover.png)
 
 ## Introduction  
 
@@ -8,8 +9,8 @@ Set in the Edo period of Japan, the goal of the game is to gain control of Edo C
 Here are the main actions a player can take:
 
 * Join the Game
-* Set Castle Defense (only the current Daimyo, the lord of the castle, can do this)
-* Attack
+* Set Castle Defense (only the current Shogun, the lord of the castle edo, can do this)
+* Attack Castle Edo 
 * Mobilize Army (determine the composition of the attacking army)
 
 The Scripts in Acurast Trusted Execution Environment (TEE) handles the following tasks:
@@ -25,7 +26,26 @@ Players can attack Edo Castle (Tokyo) at the cost of 10 turns. The Acurast Keepe
 
 If a player wins the battle, they become the next Shogun of Tokyo, gaining the ability to set the defense of the castle (an army of up to 1,600 units). A player cannot attack themselves, and each successful attack earns 1 point. These points determine a player's rank on the leaderboard. Once a player wins the castle, they cannot be attacked for 2 turns, giving the player a chance to set custom defense.
 
-The game resets every 365 turns, which equates to one in-game year (approximately 15 real-life days). At the end of each game year, the player with the most points wins. The first and current age is named the "Age of the Satoshi Nakamoto" in honor of the founder.
+The game resets every 365 turns, which equates to one in-game year (approximately 15 real-life days). At the end of each game year, the player with the most points on the leaderboard wins. The first and current year is named the "Year of the Satoshi Nakamoto".
+
+## Game Architecture
+
+The following diagram shows all the public entry functions and the oracle/keeper data flow: 
+
+![alt text](images/architecture.png)
+
+## Future Game Enhancements:
+
+Sky is the limit when it comes to addition of game features. However, the main things to be added before a production launch is as follows: 
+
+* Making the turns scarce, so people can only attack once every 2-3 days, and adding the ability for players to "buy" turns. 
+
+* Aptos collected from players buying the turns will be distributed between the current Shogun, and the treasury in a 70/30 split. This will incentivize holding onto a castle
+
+* cACU and APT tokens are needed for Acurast Processors to run the oracles and keepers. The treasury money will be allocated for that.
+
+* Multiple Castles can be added, each with unique weather associated to it's location. For someone to be Shogun, they will have to be holding majority of the castles, instead of just 1. 
+
 
 ## Tools used
 
