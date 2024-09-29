@@ -15,7 +15,7 @@ Here are the main actions a player can take:
 
 The Scripts in Acurast Trusted Execution Environment (TEE) handles the following tasks:
 
-* Update Weather Conditions (every three hours)
+* Update Weather Conditions (every 6 hours)
 * Set Player Turns (for all registered players, every hour)
 
 ## Game Architecture
@@ -54,16 +54,16 @@ Players can attack Edo Castle (Tokyo) at the cost of 10 turns. The Acurast Keepe
 
 If a player wins the battle, they become the next Shogun of Tokyo, gaining the ability to set the defense of the castle (an army of up to 1,600 units). A player cannot attack themselves, and each successful attack earns 1 point. These points determine a player's rank on the leaderboard. Once a player wins the castle, they cannot be attacked for 2 turns, giving the player a chance to set custom defense.
 
-The game resets every 365 turns, which equates to one in-game year (approximately 15 real-life days). At the end of each game year, the player with the most points on the leaderboard wins. The first and current year is named the "Year of the Satoshi Nakamoto".
+The game resets every 365 turns, which equates to one in-game year (approximately 15 real-life days). At the end of each game year, the player with the most points on the leaderboard wins. The next age ( game year) is named after the last age's winner. The first and current year is named - "Era of Satoshi Nakamoto".
 
 
 ## Future Game Enhancements:
 
 Sky is the limit when it comes to addition of game features. However, the main things to be added before a production launch is as follows: 
 
-* Making the turns scarce, so people can only attack once every 2-3 days, and adding the ability for players to "buy" turns. 
+* Making the turns scarce, so people can only attack once every 1-2 days, and adding the ability for players to "buy" turns. 
 
-* Aptos collected from players buying the turns will be distributed between the current Shogun, and the treasury in a 70/30 split. This will incentivize holding onto a castle
+* Aptos collected from players buying the turns will be distributed between the current Shogun, and the treasury in a 70/30 split. This will incentivize attacking and defending a castle. 
 
 * cACU and APT tokens are needed for Acurast Processors to run the oracles and keepers. The treasury money will be allocated for that.
 
