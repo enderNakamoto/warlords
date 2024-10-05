@@ -13,6 +13,7 @@ interface PlayerState {
   generalName: string;
   army: Army;
   turns: number;
+  points: number;
 }
 
 export const PlayerStateDisplay = () => {
@@ -71,6 +72,9 @@ export const PlayerStateDisplay = () => {
       </div>
       <p className="mt-2">
         <strong>Turns Remaining:</strong> {playerState.turns}
+      </p>
+      <p className="mt-2">
+        <strong>Points:</strong> {playerState.points}
       </p>
     </div>
   );
