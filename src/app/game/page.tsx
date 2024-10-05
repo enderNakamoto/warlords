@@ -1,11 +1,8 @@
 "use client";
 
-import Link from "next/link";
-
 import { AccountInfo } from "@/components/AccountInfo";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Button } from "@/components/ui/button";
 
 // game stuff
 import { JoinGame } from "@/components/JoinGame";
@@ -26,13 +23,6 @@ export default function Game() {
 
   return (
     <>
-      <h2>
-        <Link href="/">
-          <Button className="bg-indigo-500 hover:bg-gray-300 focus-visible:outline-indigo-600 w-32">
-            BACK TO HOME
-          </Button>
-        </Link>
-      </h2>
       <Header />
       <div className="flex items-center justify-center flex-col">
         {connected ? (
