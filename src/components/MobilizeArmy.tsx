@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
-import { mobilizeArmy } from '@/entry-functions/mobilizeArmy';
+import { mobilizeArmy } from "@/entry-functions/mobilizeArmy";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
@@ -33,7 +33,7 @@ export const MobilizeArmy = () => {
     try {
       const payload = mobilizeArmy({ archers, infantry, cavalry });
       const { hash } = await signAndSubmitTransaction(payload);
-      
+
       toast({
         title: "Success",
         description: `Army mobilized! Transaction hash: ${hash}`,
@@ -68,7 +68,7 @@ export const MobilizeArmy = () => {
         value={cavalry}
         onChange={(e) => setCavalry(parseInt(e.target.value) || 0)}
       />
-      <Button onClick={handleMobilizeArmy} disabled={!account}>
+      <Button onClick={handleMobilizeArmy} disabled={!account} className="bg-slate-600">
         Mobilize Army
       </Button>
     </div>
