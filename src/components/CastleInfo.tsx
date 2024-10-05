@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { getCastleDetails } from '@/view-functions/getCastleDetails';
+import React, { useEffect, useState } from "react";
+import { getCastleDetails } from "@/view-functions/getCastleDetails";
 
 // Add this interface
 interface DefenseArmy {
@@ -24,10 +24,10 @@ export const CastleInfo: React.FC = () => {
     const fetchCastleDetails = async () => {
       try {
         const details = await getCastleDetails();
-        console.log('details', details);
+        console.log("details", details);
         setCastleDetails(details);
       } catch (err) {
-        setError('Failed to fetch castle details');
+        setError("Failed to fetch castle details");
         console.error(err);
       } finally {
         setLoading(false);

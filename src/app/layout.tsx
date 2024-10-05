@@ -7,15 +7,11 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "NextJS Boilerplate Template",
-  description: "NextJS Boilerplate Template is a...",
+  title: "Shogun Game",
+  description: "Shogun is a fully on-chain game on Aptos L1 written in Move",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body>
