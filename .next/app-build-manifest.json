@@ -12,21 +12,12 @@
       "static/chunks/fd9d1056-51face16839d2cb0.js",
       "static/chunks/23-dafcb38566695184.js",
       "static/chunks/main-app-e3748fce963cc680.js",
-      "static/css/89dde69168e33714.css",
+      "static/css/6451005732350a81.css",
       "static/chunks/b56196ea-af30cb7110a8749a.js",
       "static/chunks/183-38b4aa09552a95cb.js",
-      "static/chunks/223-aba64e2c0f311e60.js",
-      "static/chunks/33-74242b789e3e8e4a.js",
-      "static/chunks/app/layout-e93bb6b52a36ce45.js"
-    ],
-    "/page": [
-      "static/chunks/webpack-a627c2d3eb905ffe.js",
-      "static/chunks/fd9d1056-51face16839d2cb0.js",
-      "static/chunks/23-dafcb38566695184.js",
-      "static/chunks/main-app-e3748fce963cc680.js",
-      "static/chunks/183-38b4aa09552a95cb.js",
-      "static/chunks/138-c258812f53a76f81.js",
-      "static/chunks/app/page-1aca43f91ccd1170.js"
+      "static/chunks/223-80b81e8ea4b2dc52.js",
+      "static/chunks/33-a6b62f3f3e2c337f.js",
+      "static/chunks/app/layout-2babcccc4b939d43.js"
     ],
     "/game/page": [
       "static/chunks/webpack-a627c2d3eb905ffe.js",
@@ -35,10 +26,20 @@
       "static/chunks/main-app-e3748fce963cc680.js",
       "static/chunks/b56196ea-af30cb7110a8749a.js",
       "static/chunks/183-38b4aa09552a95cb.js",
-      "static/chunks/223-aba64e2c0f311e60.js",
+      "static/chunks/223-80b81e8ea4b2dc52.js",
       "static/chunks/138-c258812f53a76f81.js",
-      "static/chunks/770-bf3334e5e6e3291b.js",
-      "static/chunks/app/game/page-f517be12cdceceb7.js"
+      "static/chunks/770-01c4ee678021f7a8.js",
+      "static/chunks/app/game/page-e5c2af0c79c61016.js"
+    ],
+    "/page": [
+      "static/chunks/webpack-a627c2d3eb905ffe.js",
+      "static/chunks/fd9d1056-51face16839d2cb0.js",
+      "static/chunks/23-dafcb38566695184.js",
+      "static/chunks/main-app-e3748fce963cc680.js",
+      "static/chunks/183-38b4aa09552a95cb.js",
+      "static/chunks/138-c258812f53a76f81.js",
+      "static/chunks/648-03439521d67c2375.js",
+      "static/chunks/app/page-1691b3ae6d65411f.js"
     ]
   }
 }

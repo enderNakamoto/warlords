@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
-import { joinGame } from '@/entry-functions/joinGame';
+import { joinGame } from "@/entry-functions/joinGame";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
 
 export const JoinGame = () => {
-  const [generalName, setGeneralName] = useState('');
+  const [generalName, setGeneralName] = useState("");
   const { account, signAndSubmitTransaction } = useWallet();
 
   const handleJoinGame = async () => {
@@ -31,7 +31,7 @@ export const JoinGame = () => {
     try {
       const payload = joinGame({ generalName });
       const { hash } = await signAndSubmitTransaction(payload);
-      
+
       toast({
         title: "Success",
         description: `Joined the game! Transaction hash: ${hash}`,
@@ -53,7 +53,7 @@ export const JoinGame = () => {
         value={generalName}
         onChange={(e) => setGeneralName(e.target.value)}
       />
-      <Button onClick={handleJoinGame} disabled={!account || !generalName}>
+      <Button onClick={handleJoinGame} disabled={!account || !generalName} className="bg-slate-600">
         Join Game
       </Button>
     </div>

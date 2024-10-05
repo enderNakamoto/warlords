@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
-import { getPlayerState } from '@/view-functions/getPlayerDetails';
+import { getPlayerState } from "@/view-functions/getPlayerDetails";
 import { toast } from "@/components/ui/use-toast";
 
 interface Army {
@@ -56,9 +56,11 @@ export const PlayerStateDisplay = () => {
   }
 
   return (
-    <div className="bg-gray-100 p-4 rounded-lg shadow">
+    <div className="bg-slate-600 p-4 rounded-lg shadow">
       <h2 className="text-xl font-bold mb-4">Player State</h2>
-      <p><strong>General Name:</strong> {playerState.generalName}</p>
+      <p>
+        <strong>General Name:</strong> {playerState.generalName}
+      </p>
       <div className="mt-2">
         <h3 className="text-lg font-semibold">Army:</h3>
         <ul className="list-disc list-inside">
@@ -67,7 +69,9 @@ export const PlayerStateDisplay = () => {
           <li>Infantry: {playerState.army.infantry}</li>
         </ul>
       </div>
-      <p className="mt-2"><strong>Turns Remaining:</strong> {playerState.turns}</p>
+      <p className="mt-2">
+        <strong>Turns Remaining:</strong> {playerState.turns}
+      </p>
     </div>
   );
 };
