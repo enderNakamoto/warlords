@@ -1,1 +1,0 @@
-self.__REACT_LOADABLE_MANIFEST='{"..\\\\node_modules\\\\@atomrigslab\\\\aptos-wallet-adapter\\\\dist\\\\index.es.js -> ./index-DRmafxZ_.mjs":{"id":8316,"files":["static/chunks/316.8bbdb209f0fe8486.js"]}}';

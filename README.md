@@ -108,3 +108,24 @@ Sky is the limit when it comes to addition of game features. However, the main t
 - `npm run move:compile` - a command to compile the Move contract
 - `npm run move:upgrade` - a command to upgrade the Move contract
 - `npm run deploy` - a command to deploy the dapp to Vercel
+
+
+## Progress
+
+| Feature | Started | Basic | Completed |
+| :--------- | :------ | :-----  | :----- |
+| Init | [x] | [x] | [] |
+| Join | [x] | [x] | [] |
+| Mobilize | [x] | [x] | [] |
+| Attack | [x] | [x] | [] |
+| Defend | [x] | [x] | [] |
+| Set Weather | [x] | [] | [] |
+| Tick | [x] | [] | [] |
+| Get Player State | [x] | [x] | [] |
+| Get Castle State | [x] | [x] | [] |
+| Get Tick State | [x] | [x] | [] |
+| Named Object For Storage | [] | [] | [] |
+| Simple Battle | [x] | [] | [] |
+| Randomness Battle | [x] | [] | [] |
+| Complicated Battle | [] | [] | [] |
+
