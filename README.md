@@ -112,6 +112,8 @@ Sky is the limit when it comes to addition of game features. However, the main t
 
 ## Progress
 
+### Smart Contract and Oracle 
+
 | Feature | Started | Basic | Completed |
 | :--------- | :------ | :-----  | :----- |
 | Init | [x] | [x] | [] |
@@ -129,3 +131,10 @@ Sky is the limit when it comes to addition of game features. However, the main t
 | Randomness Battle | [x] | [] | [] |
 | Complicated Battle | [] | [] | [] |
 
+
+### Frontend 
+
+| Feature | Started | Basic | Completed |
+| :--------- | :------ | :-----  | :----- |
+| Landing Page | [x] | [] | [] |
+| Dashboard | [x] | [] | [] |
