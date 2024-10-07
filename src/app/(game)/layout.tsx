@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { Sword, Shield, Trophy, HelpCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,10 +9,17 @@ import { CardHeader, CardTitle } from "@/components/ui/card";
 import logo from "../../../images/shogun_logo.png";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { WalletSelector } from "../../components/WalletSelector";
+import { usePathname } from "next/navigation";
 
 export default function GameLayout({ children }: { children: ReactNode }) {
   const { connected } = useWallet();
   const year = new Date().getFullYear();
+  const [route, setRoute] = useState("");
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setRoute(pathname);
+  }, [pathname]);
 
   return (
     <>
@@ -26,25 +34,37 @@ export default function GameLayout({ children }: { children: ReactNode }) {
           <nav>
             <ul className="space-y-2">
               <li>
-                <Link href="/attack" className="flex items-center p-2 rounded hover:bg-gray-700">
+                <Link
+                  href="/attack"
+                  className={`flex items-center p-2 rounded hover:bg-gray-700 ${route === "/attack" ? "text-yellow-300" : ""}`}
+                >
                   <Sword className="mr-2" />
                   Attack
                 </Link>
               </li>
               <li>
-                <Link href="/defense" className="flex items-center p-2 rounded hover:bg-gray-700">
+                <Link
+                  href="/defense"
+                  className={`flex items-center p-2 rounded hover:bg-gray-700 ${route === "/defense" ? "text-yellow-300" : ""}`}
+                >
                   <Shield className="mr-2" />
                   Defense
                 </Link>
               </li>
               <li>
-                <Link href="/rankings" className="flex items-center p-2 rounded hover:bg-gray-700">
+                <Link
+                  href="/rankings"
+                  className={`flex items-center p-2 rounded hover:bg-gray-700 ${route === "/rankings" ? "text-yellow-300" : ""}`}
+                >
                   <Trophy className="mr-2" />
                   Rankings
                 </Link>
               </li>
               <li>
-                <Link href="/help" className="flex items-center p-2 rounded hover:bg-gray-700">
+                <Link
+                  href="/help"
+                  className={`flex items-center p-2 rounded hover:bg-gray-700 ${route === "/help" ? "text-yellow-300" : ""}`}
+                >
                   <HelpCircle className="mr-2" />
                   Help
                 </Link>

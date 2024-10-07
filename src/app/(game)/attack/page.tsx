@@ -15,7 +15,7 @@ export default function Attack() {
   const [archerCount, setArcherCount] = useState(0);
   const [infantryCount, setInfantryCount] = useState(0);
   const [cavalryCount, setCavalryCount] = useState(0);
-  const MAX_TROOPS = 1500;
+  const MAX_TROOPS = 2000;
 
   return (
     <>
@@ -88,16 +88,17 @@ export default function Attack() {
       <Card className="bg-gray-800 border-gray-700">
         <CardContent className="p-6">
           <h3 className="text-xl font-bold mb-4 text-white text-center">JOIN THE GAME</h3>
-          <form className="flex space-x-4">
+          <form>
             <Input
               type="text"
               placeholder="Enter your general's name"
-              className="flex-grow text-gray-300 rounded-md"
+              className="w-[320px] text-gray-300 rounded-md mx-auto my-0"
               value={generalName}
               onChange={(e) => setGeneralName(e.target.value)}
               maxLength={100}
             />
-            <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white">
+
+            <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white w-full mt-3">
               {/* onClick={handleJoinGame} disabled={!account || !generalName} */}
               JOIN
             </Button>
@@ -119,7 +120,7 @@ export default function Attack() {
               </label>
               <Slider
                 min={0}
-                max={500}
+                max={MAX_TROOPS}
                 step={1}
                 value={[archerCount]}
                 onValueChange={(value) => setArcherCount(value[0])}
@@ -136,7 +137,7 @@ export default function Attack() {
               </label>
               <Slider
                 min={0}
-                max={500}
+                max={MAX_TROOPS}
                 step={1}
                 value={[infantryCount]}
                 onValueChange={(value) => setInfantryCount(value[0])}
@@ -153,7 +154,7 @@ export default function Attack() {
               </label>
               <Slider
                 min={0}
-                max={500}
+                max={MAX_TROOPS}
                 step={1}
                 value={[cavalryCount]}
                 onValueChange={(value) => setCavalryCount(value[0])}
@@ -164,6 +165,9 @@ export default function Attack() {
               Remaining troops:{" "}
               <span className="font-bold">{MAX_TROOPS - archerCount - infantryCount - cavalryCount}</span>
             </p>
+            {MAX_TROOPS - archerCount - infantryCount - cavalryCount < 0 && (
+              <p className="text-red-400">Troops limit exceeded!</p>
+            )}
             <Button className="bg-indigo-600 hover:bg-indigo-700 text-white text-center w-full mb-3">
               {/* onClick={handleJoinGame} disabled={!account || !generalName} */}
               MOBILIZE
