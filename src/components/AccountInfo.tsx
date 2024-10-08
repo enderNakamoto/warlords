@@ -6,7 +6,7 @@ export function AccountInfo() {
   const { account } = useWallet();
   return (
     <div className="flex flex-col gap-6">
-      <h4 className="text-lg font-medium">Account Info</h4>
+      <h4 className="text-lg font-bold">Account Info</h4>
       <LabelValueGrid
         items={[
           {
