@@ -48,7 +48,7 @@ export default function Help() {
                 For more detailed information about game mechanics, strategies, and updates, please refer to our
                 comprehensive documentation.
               </p>
-              <Link href="#" passHref>
+              <Link href="https://jsmaxi.gitbook.io/shogun" passHref target="_blank">
                 <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
                   <ExternalLink className="mr-2 h-4 w-4" />
                   View Full Documentation
@@ -61,7 +61,7 @@ export default function Help() {
             <CardContent className="p-6">
               <h3 className="text-xl font-bold mb-4 text-indigo-500">Need More Help?</h3>
               <p className="mb-4">If you can't find the answer to your question, our support team is here to help.</p>
-              <Link href="#" passHref>
+              <Link href="https://jsmaxi.gitbook.io/shogun" passHref target="_blank">
                 <Button className="bg-green-600 hover:bg-green-700 text-white">Contact Support</Button>
               </Link>
             </CardContent>

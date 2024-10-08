@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 import cover from "../../../../images/samurai_rank.png";
+import shogun from "../../../../images/shogun.png";
 
 export default function Rankings() {
   const playerRankings = [
@@ -14,7 +15,18 @@ export default function Rankings() {
   return (
     <>
       <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Shogun: Rise of Empires</h1>
+        <div className="flex justify-center items-center">
+          <Image
+            src={shogun}
+            width={125}
+            height={50}
+            quality={100}
+            placeholder="blur"
+            alt="Shogun Text"
+            className="rounded-lg mr-2"
+          />
+          <h1 className="text-3xl font-bold"> : Rise of Empires</h1>
+        </div>
         <Image
           src={cover}
           width={400}

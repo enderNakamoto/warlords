@@ -1,23 +1,118 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Shield, Sun, Crown } from "lucide-react";
+import { Shield } from "lucide-react";
+import { defend } from "@/entry-functions/defend";
+import { getCastleDetails } from "@/view-functions/getCastleDetails";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { toast } from "@/components/ui/use-toast";
+import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import cover from "../../../../images/samurai_def.png";
+import shogun from "../../../../images/shogun.png";
+
+interface DefenseArmy {
+  archers: string;
+  cavalry: string;
+  infantry: string;
+}
+
+interface CastleDetails {
+  defenseArmy: DefenseArmy;
+}
 
 export default function Defense() {
+  const [castleDetails, setCastleDetails] = useState<CastleDetails | null>(null);
+  const [loadingCastleDetails, setLoadingCastleDetails] = useState(true);
+  const [castleError, setCastleError] = useState<string | null>(null);
   const [archerCount, setArcherCount] = useState(0);
   const [infantryCount, setInfantryCount] = useState(0);
   const [cavalryCount, setCavalryCount] = useState(0);
   const MAX_TROOPS = 1600;
+  const { account, signAndSubmitTransaction } = useWallet();
+
+  useEffect(() => {
+    const fetchCastleDetails = async () => {
+      try {
+        const details = await getCastleDetails();
+        console.log("details", details);
+        setCastleDetails(details);
+      } catch (err) {
+        console.error(err);
+        setCastleError("Failed to fetch castle details. Please try again.");
+      } finally {
+        setLoadingCastleDetails(false);
+      }
+    };
+
+    fetchCastleDetails();
+  }, []);
+
+  const handleDefend = async () => {
+    if (!account) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please connect your wallet first.",
+      });
+      return;
+    }
+
+    if (archerCount < 0 || infantryCount < 0 || cavalryCount < 0) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Army composition cannot contain negative values.",
+      });
+      return;
+    }
+
+    if (archerCount + infantryCount + cavalryCount > MAX_TROOPS) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Army composition cannot exceed " + MAX_TROOPS,
+      });
+      return;
+    }
+
+    try {
+      const payload = defend({ archers: archerCount, infantry: infantryCount, cavalry: cavalryCount });
+      const { hash } = await signAndSubmitTransaction(payload);
+
+      toast({
+        title: "Success",
+        description: `Defense army changed! Transaction hash: ${hash}`,
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: `Failed to change defense army: ${error.message}`,
+      });
+    }
+  };
+
+  if (loadingCastleDetails) return <div>Loading castle details...</div>;
+  if (castleError) return <div>Error loading castle details: {castleError}</div>;
 
   return (
     <>
       <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Shogun: Rise of Empires</h1>
+        <div className="flex justify-center items-center">
+          <Image
+            src={shogun}
+            width={125}
+            height={50}
+            quality={100}
+            placeholder="blur"
+            alt="Shogun Text"
+            className="rounded-lg mr-2"
+          />
+          <h1 className="text-3xl font-bold"> : Rise of Empires</h1>
+        </div>
         <Image
           src={cover}
           width={400}
@@ -31,60 +126,33 @@ export default function Defense() {
 
       <Card className="bg-gray-800 border-gray-700">
         <CardContent className="p-6">
-          <h3 className="text-2xl font-bold mb-2">Castle Status »</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-base text-gray-400">Weather</p>
-              <div className="flex items-center">
-                <Sun className="h-6 w-6 text-yellow-500 mr-2" />
-                <span className="text-2xl font-bold text-lime-300">Sunny</span>
-              </div>
-            </div>
-            <div>
-              <p className="text-base text-gray-400">Current King</p>
-              <div className="flex items-center">
-                <Crown className="h-6 w-6 text-red-500 mr-2" />
-                <span className="text-2xl font-bold text-red-500">Tokugawa</span>
-              </div>
-            </div>
-            <div>
-              <p className="text-base text-gray-400">Last Weather Update</p>
-              <p className="text-xl font-bold text-green-400">~ 2 hours ago</p>
-            </div>
-            <div>
-              <p className="text-base text-gray-400">Last King Update</p>
-              <p className="text-xl font-bold text-indigo-400">~ 2 days ago</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-gray-800 border-gray-700">
-        <CardContent className="p-6">
           <h3 className="text-2xl font-bold mb-2">Castle Defense »</h3>
           <div className="flex justify-around mt-4">
             <div className="flex flex-col items-center">
               <Shield className="text-yellow-500 mb-2" />
               <p className="tracking-wide">Archers</p>
-              <p className="text-3xl font-bold mt-4">500</p>
+              <p className="text-3xl font-bold mt-4">{castleDetails?.defenseArmy?.archers}</p>
             </div>
             <div className="flex flex-col items-center">
               <Shield className="text-green-500 mb-2" />
               <p className="tracking-wide">Infantry</p>
-              <p className="text-3xl font-bold mt-4">500</p>
+              <p className="text-3xl font-bold mt-4">{castleDetails?.defenseArmy?.infantry}</p>
             </div>
             <div className="flex flex-col items-center">
               <Shield className="text-red-500 mb-2" />
               <p className="tracking-wide">Cavalry</p>
-              <p className="text-3xl font-bold mt-4">500</p>
+              <p className="text-3xl font-bold mt-4">{castleDetails?.defenseArmy?.cavalry}</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
+      <div>
+        <i>Only active for the current King:</i>
+      </div>
       <Card className="bg-gray-800 border-gray-700">
         <CardContent className="p-6">
-          <h3 className="text-xl font-bold mb-4 text-white text-center">CHANGE DEFENSE</h3>
+          <h3 className="text-xl font-bold mb-4 text-white text-center">CHANGE DEFENSE, KING</h3>
           <div className="space-y-6">
             <div className="space-y-2">
               <label className="flex justify-between">
@@ -144,8 +212,11 @@ export default function Defense() {
             {MAX_TROOPS - archerCount - infantryCount - cavalryCount < 0 && (
               <p className="text-red-400">Troops limit exceeded!</p>
             )}
-            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white text-center w-full mb-3">
-              {/* onClick={handleJoinGame} disabled={!account || !generalName} */}
+            <Button
+              className="bg-indigo-600 hover:bg-indigo-700 text-white text-center w-full mb-3"
+              onClick={handleDefend}
+              disabled={!account}
+            >
               CHANGE
             </Button>
             <i>Cost: 3 turns</i>
