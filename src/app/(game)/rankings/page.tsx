@@ -27,15 +27,22 @@ export default function Rankings() {
           />
           <h1 className="text-3xl font-bold"> : Rise of Empires</h1>
         </div>
-        <Image
-          src={cover}
-          width={400}
-          height={200}
-          quality={100}
-          placeholder="blur"
-          alt="Shogun Banner"
-          className="mx-auto rounded-lg"
-        />
+        <div className="relative text-center">
+          <div className="absolute inset-0 flex items-center justify-center text-wrap w-[300px] mx-auto pointer-events-none z-10">
+            <h3 className="text-white text-xl font-bold">
+              “Opportunities multiply as they are seized.” ― Sun Tzu, The Art of War
+            </h3>
+          </div>
+          <Image
+            src={cover}
+            width={400}
+            height={200}
+            quality={100}
+            placeholder="blur"
+            alt="Shogun Banner"
+            className="mx-auto rounded-lg hover:opacity-20 cursor-pointer relative z-20"
+          />
+        </div>
       </div>
 
       <Card className="bg-gray-800 border-gray-700">

@@ -128,7 +128,7 @@ export default function GameLayout({ children }: { children: ReactNode }) {
         </main>
 
         {isStoryOpen && (
-          <aside className="fixed inset-y-0 right-0 w-96 bg-gray-800 p-6 overflow-hidden shadow-lg transform transition-transform duration-300 ease-in-out">
+          <aside className="fixed inset-y-0 right-0 w-96 bg-gray-800 p-6 overflow-hidden shadow-lg transform transition-transform duration-300 ease-in-out animate-fade-in">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold">Game Story</h2>
               <Button onClick={() => setIsStoryOpen(false)} variant="ghost" size="icon">
