@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Swords } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
+import { handleAptosError } from "@/utils/aptosErrorHandler";
 import Image from "next/image";
 import cover from "../../../../images/samurai_atk.png";
 import shogun from "../../../../images/shogun.png";
@@ -48,7 +49,8 @@ export default function Attack() {
         setPlayerState(state);
       } catch (error) {
         console.error("Failed to fetch player state:", error);
-        setPlayerError("Failed to fetch player state. Please try again.");
+        const aptosError = handleAptosError(error);
+        setPlayerError("Failed to fetch player state. " + aptosError);
       } finally {
         setLoadingPlayerState(false);
       }
@@ -158,13 +160,12 @@ export default function Attack() {
       toast({
         variant: "destructive",
         title: "Attack Failed",
-        description: `Failed to launch attack: ${error.message}`,
+        description: `Failed to launch attack: ${error}`,
       });
     }
   };
 
   if (loadingPlayerState) return <div>Loading player state...</div>;
-  if (playerError) return <div>Error loading player state: {playerError}</div>;
 
   return (
     <>
@@ -181,16 +182,26 @@ export default function Attack() {
           />
           <h1 className="text-3xl font-bold"> : Rise of Empires</h1>
         </div>
-        <Image
-          src={cover}
-          width={400}
-          height={200}
-          quality={100}
-          placeholder="blur"
-          alt="Shogun Banner"
-          className="mx-auto rounded-lg"
-        />
+        <div className="relative text-center">
+          <div className="absolute inset-0 flex items-center justify-center text-wrap w-[300px] mx-auto pointer-events-none z-10">
+            <h3 className="text-white text-xl font-bold">
+              “Treat your men as you would your own beloved sons. And they will follow you into the deepest valley.” ―
+              Sun Tzu, The Art of War
+            </h3>
+          </div>
+          <Image
+            src={cover}
+            width={400}
+            height={200}
+            quality={100}
+            placeholder="blur"
+            alt="Shogun Banner"
+            className="mx-auto rounded-lg hover:opacity-20 cursor-pointer relative z-20"
+          />
+        </div>
       </div>
+
+      {playerError && <div>{playerError}</div>}
 
       {!playerState ? (
         <Card className="bg-gray-800 border-gray-700">
@@ -331,7 +342,6 @@ export default function Attack() {
           </div>
         </>
       )}
-
       <hr />
     </>
   );

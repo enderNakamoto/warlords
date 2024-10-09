@@ -1,7 +1,6 @@
 import { aptosClient } from "@/utils/aptosClient";
 import { MODULE_ADDRESS } from "@/constants"
 
-// Add this interface
 interface DefenseArmy {
   archers: string;
   cavalry: string;
@@ -12,8 +11,10 @@ export const getCastleDetails = async (): Promise<{
   kingAddress: string;
   defenseArmy: DefenseArmy;
   weatherValue: number;
+  lastWeatherChange: number;
+  lastKingChange: number;
 }> => {
-  const response = await aptosClient().view<[string, DefenseArmy, number]>({
+  const response = await aptosClient().view<[string, DefenseArmy, number, number, number]>({
     payload: {
       function: `${MODULE_ADDRESS}::warlords::get_castle_info`,
       typeArguments: [],
@@ -21,11 +22,13 @@ export const getCastleDetails = async (): Promise<{
     },
   });
 
-  const [kingAddress, defenseArmy, weatherValue] = response;
+  const [kingAddress, defenseArmy, weatherValue, lastWeatherChange, lastKingChange] = response;
 
   return {
     kingAddress,
     defenseArmy,
     weatherValue,
+    lastWeatherChange,
+    lastKingChange
   };
 };

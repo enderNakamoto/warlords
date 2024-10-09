@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "@/components/ui/use-toast";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
+import { handleAptosError } from "@/utils/aptosErrorHandler";
 import cover from "../../../../images/samurai_def.png";
 import shogun from "../../../../images/shogun.png";
 
@@ -20,6 +21,7 @@ interface DefenseArmy {
 }
 
 interface CastleDetails {
+  kingAddress: string;
   defenseArmy: DefenseArmy;
 }
 
@@ -40,8 +42,9 @@ export default function Defense() {
         console.log("details", details);
         setCastleDetails(details);
       } catch (err) {
-        console.error(err);
-        setCastleError("Failed to fetch castle details. Please try again.");
+        console.error("Failed to fetch castle details:", err);
+        const aptosError = handleAptosError(err);
+        setCastleError("Failed to fetch castle details. " + aptosError);
       } finally {
         setLoadingCastleDetails(false);
       }
@@ -96,7 +99,7 @@ export default function Defense() {
   };
 
   if (loadingCastleDetails) return <div>Loading castle details...</div>;
-  if (castleError) return <div>Error loading castle details: {castleError}</div>;
+  if (castleError) return <div>{castleError}</div>;
 
   return (
     <>
@@ -113,15 +116,23 @@ export default function Defense() {
           />
           <h1 className="text-3xl font-bold"> : Rise of Empires</h1>
         </div>
-        <Image
-          src={cover}
-          width={400}
-          height={200}
-          quality={100}
-          placeholder="blur"
-          alt="Shogun Banner"
-          className="mx-auto rounded-lg"
-        />{" "}
+        <div className="relative text-center">
+          <div className="absolute inset-0 flex items-center justify-center text-wrap w-[300px] mx-auto pointer-events-none z-10">
+            <h3 className="text-white text-xl font-bold">
+              “If you wait by the river long enough, the bodies of your enemies will float by.” ― Sun Tzu, The Art of
+              War
+            </h3>
+          </div>
+          <Image
+            src={cover}
+            width={400}
+            height={200}
+            quality={100}
+            placeholder="blur"
+            alt="Shogun Banner"
+            className="mx-auto rounded-lg hover:opacity-20 cursor-pointer relative z-20"
+          />
+        </div>
       </div>
 
       <Card className="bg-gray-800 border-gray-700">
@@ -147,82 +158,81 @@ export default function Defense() {
         </CardContent>
       </Card>
 
-      <div>
-        <i>Only active for the current King:</i>
-      </div>
-      <Card className="bg-gray-800 border-gray-700">
-        <CardContent className="p-6">
-          <h3 className="text-xl font-bold mb-4 text-white text-center">CHANGE DEFENSE, KING</h3>
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <label className="flex justify-between">
-                <div className="flex items-center">
-                  <Shield className="text-yellow-500 mr-4" />{" "}
-                  <span className="text-sm font-medium text-gray-200">Archers</span>
-                </div>
-                <span className="text-xl font-bold text-white">{archerCount}</span>
-              </label>
-              <Slider
-                min={0}
-                max={MAX_TROOPS}
-                step={1}
-                value={[archerCount]}
-                onValueChange={(value) => setArcherCount(value[0])}
-                className="w-full text-white bg-yellow-500"
-              />
+      {account && castleDetails && castleDetails.kingAddress === account.address && (
+        <Card className="bg-gray-800 border-gray-700">
+          <CardContent className="p-6">
+            <h3 className="text-xl font-bold mb-4 text-white text-center">CHANGE DEFENSE, KING</h3>
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <label className="flex justify-between">
+                  <div className="flex items-center">
+                    <Shield className="text-yellow-500 mr-4" />{" "}
+                    <span className="text-sm font-medium text-gray-200">Archers</span>
+                  </div>
+                  <span className="text-xl font-bold text-white">{archerCount}</span>
+                </label>
+                <Slider
+                  min={0}
+                  max={MAX_TROOPS}
+                  step={1}
+                  value={[archerCount]}
+                  onValueChange={(value) => setArcherCount(value[0])}
+                  className="w-full text-white bg-yellow-500"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="flex justify-between">
+                  <div className="flex items-center">
+                    <Shield className="text-green-500 mr-4" />{" "}
+                    <span className="text-sm font-medium text-gray-200">Infantry</span>
+                  </div>
+                  <span className="text-xl font-bold text-white">{infantryCount}</span>
+                </label>
+                <Slider
+                  min={0}
+                  max={MAX_TROOPS}
+                  step={1}
+                  value={[infantryCount]}
+                  onValueChange={(value) => setInfantryCount(value[0])}
+                  className="w-full text-white bg-green-500"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="flex justify-between">
+                  <div className="flex items-center">
+                    <Shield className="text-red-500 mr-4" />{" "}
+                    <span className="text-sm font-medium text-gray-200">Cavalry</span>
+                  </div>
+                  <span className="text-xl font-bold text-white">{cavalryCount}</span>
+                </label>
+                <Slider
+                  min={0}
+                  max={MAX_TROOPS}
+                  step={1}
+                  value={[cavalryCount]}
+                  onValueChange={(value) => setCavalryCount(value[0])}
+                  className="text-white bg-red-500 w-full"
+                />
+              </div>
+              <p>
+                Remaining troops:{" "}
+                <span className="font-bold">{MAX_TROOPS - archerCount - infantryCount - cavalryCount}</span>
+              </p>
+              {MAX_TROOPS - archerCount - infantryCount - cavalryCount < 0 && (
+                <p className="text-red-400">Troops limit exceeded!</p>
+              )}
+              <Button
+                className="bg-indigo-600 hover:bg-indigo-700 text-white text-center w-full mb-3"
+                onClick={handleDefend}
+                disabled={!account}
+              >
+                CHANGE
+              </Button>
+              <i>Cost: 3 turns</i>
             </div>
-            <div className="space-y-2">
-              <label className="flex justify-between">
-                <div className="flex items-center">
-                  <Shield className="text-green-500 mr-4" />{" "}
-                  <span className="text-sm font-medium text-gray-200">Infantry</span>
-                </div>
-                <span className="text-xl font-bold text-white">{infantryCount}</span>
-              </label>
-              <Slider
-                min={0}
-                max={MAX_TROOPS}
-                step={1}
-                value={[infantryCount]}
-                onValueChange={(value) => setInfantryCount(value[0])}
-                className="w-full text-white bg-green-500"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="flex justify-between">
-                <div className="flex items-center">
-                  <Shield className="text-red-500 mr-4" />{" "}
-                  <span className="text-sm font-medium text-gray-200">Cavalry</span>
-                </div>
-                <span className="text-xl font-bold text-white">{cavalryCount}</span>
-              </label>
-              <Slider
-                min={0}
-                max={MAX_TROOPS}
-                step={1}
-                value={[cavalryCount]}
-                onValueChange={(value) => setCavalryCount(value[0])}
-                className="text-white bg-red-500 w-full"
-              />
-            </div>
-            <p>
-              Remaining troops:{" "}
-              <span className="font-bold">{MAX_TROOPS - archerCount - infantryCount - cavalryCount}</span>
-            </p>
-            {MAX_TROOPS - archerCount - infantryCount - cavalryCount < 0 && (
-              <p className="text-red-400">Troops limit exceeded!</p>
-            )}
-            <Button
-              className="bg-indigo-600 hover:bg-indigo-700 text-white text-center w-full mb-3"
-              onClick={handleDefend}
-              disabled={!account}
-            >
-              CHANGE
-            </Button>
-            <i>Cost: 3 turns</i>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
       <hr />
     </>

@@ -32,7 +32,7 @@ module warlords_addr::warlords {
 
     // ================================= Constants ============================== //
     const TICK_INTERVAL: u64 = 1; // 1 hour in seconds
-    const MAX_DEFENSE_SIZE: u64 = 1500;
+    const MAX_DEFENSE_SIZE: u64 = 1600;
     const MAX_ATTACKER_SIZE: u64 = 2000;
     const INITIAL_TURN: u64 = 10;
     const WEATHER_BONUS_MULTIPLIER: u64 = 15; // 15% bonus
@@ -80,6 +80,7 @@ module warlords_addr::warlords {
         king: address,
         defense: Army,
         weather: Weather,
+        last_king_change: u64
     }
 
     // Global State holding game state 
@@ -89,7 +90,14 @@ module warlords_addr::warlords {
         number_of_attacks: u64,
         game_turn: u64,
         last_tick_timestamp: u64,
-        player_addresses: vector<address> // all the players that joined the game
+        player_addresses: vector<address>, // all the players that joined the game
+        highest_scorer: HighestScorer
+    }
+
+    // Store current leader address and points
+    struct HighestScorer has store, drop {
+        player_address: address,
+        player_points: u64
     }
 
     // Unique state for a player's army and turn count
@@ -127,12 +135,14 @@ module warlords_addr::warlords {
                 king: sender_addr,
                 defense: Army { archers: 500, cavalry: 500, infantry: 500 },
                 weather: Weather { value: CLEAR, last_weather_change: timestamp::now_seconds() },
+                last_king_change: timestamp::now_seconds()
             },
             weatherman: sender_addr,
             number_of_attacks: 0,
             game_turn: 0,
             last_tick_timestamp: 0,
-            player_addresses: vector::empty<address>()
+            player_addresses: vector::empty<address>(),
+            highest_scorer: HighestScorer { player_address: sender_addr, player_points: 0 }
         });
     }
 
@@ -208,8 +218,12 @@ module warlords_addr::warlords {
             // Attacker wins
             game_state.castle.king = attacker_addr;
             game_state.castle.defense = default_defense_army;
+            game_state.castle.last_king_change = timestamp::now_seconds();
             winner = attacker_addr;
             attacker_state.points = attacker_state.points + 1;
+            if (attacker_state.points > game_state.highest_scorer.player_points) {
+                game_state.highest_scorer = HighestScorer { player_address: attacker_addr, player_points: attacker_state.points };
+            }
         } else {
             // Defender wins
             winner = game_state.castle.king;
@@ -251,8 +265,12 @@ module warlords_addr::warlords {
             // Attacker wins
             game_state.castle.king = attacker_addr;
             game_state.castle.defense = default_defense_army;
+            game_state.castle.last_king_change = timestamp::now_seconds();
             winner = attacker_addr;
             attacker_state.points = attacker_state.points + 1;
+            if (attacker_state.points > game_state.highest_scorer.player_points) {
+                game_state.highest_scorer = HighestScorer { player_address: attacker_addr, player_points: attacker_state.points };
+            }
         } else {
             // Defender wins
             winner = game_state.castle.king;
@@ -281,7 +299,7 @@ module warlords_addr::warlords {
 
         let army = Army { archers, cavalry, infantry };
         // defending army has to follow game rules
-        assert!(calculate_base_strength(&army) <= 1500, ERR_INVALID_ARMY_SIZE);
+        assert!(calculate_base_strength(&army) <= MAX_DEFENSE_SIZE, ERR_INVALID_ARMY_SIZE);
 
         game_state_mut.castle.defense = army;
     }
@@ -334,12 +352,14 @@ module warlords_addr::warlords {
     // ======================== Read Functions ========================
 
     #[view]
-    public fun get_castle_info(): (address, Army, u8) acquires GameState {
+    public fun get_castle_info(): (address, Army, u8, u64, u64) acquires GameState {
         let game_state = borrow_global<GameState>(@warlords_addr);
         (
             game_state.castle.king,
             game_state.castle.defense,
-            game_state.castle.weather.value
+            game_state.castle.weather.value,
+            game_state.castle.weather.last_weather_change,
+            game_state.castle.last_king_change
         )
     }
 
@@ -355,6 +375,19 @@ module warlords_addr::warlords {
         let game_state = borrow_global<GameState>(@warlords_addr);
         game_state.last_tick_timestamp
     }
+
+    #[view]
+    public fun get_last_king_timestamp(): u64 acquires GameState {
+        let game_state = borrow_global<GameState>(@warlords_addr);
+        game_state.castle.last_king_change
+    }
+
+    #[view]
+    public fun get_top_points(): u64 acquires GameState {
+        let game_state = borrow_global<GameState>(@warlords_addr);
+        game_state.highest_scorer.player_points
+    }
+
 
     // ======================== Helper functions ========================
 
