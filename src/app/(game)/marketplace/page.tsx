@@ -2,10 +2,8 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
-import { AccountInfo } from "@/components/AccountInfo";
-import { NetworkInfo } from "@/components/NetworkInfo";
-import { WalletDetails } from "@/components/WalletDetails";
-import cover from "../../../../images/samurai_coin.png";
+import { Store } from "lucide-react";
+import cover from "../../../../images/samurai_market.png";
 import shogun from "../../../../images/shogun.png";
 
 export default function Wallet() {
@@ -27,7 +25,7 @@ export default function Wallet() {
         <div className="relative text-center">
           <div className="absolute inset-0 flex items-center justify-center text-wrap w-[300px] mx-auto pointer-events-none z-10">
             <h3 className="text-white text-xl font-bold">
-              “Know yourself and you will win all battles.” ― Sun Tzu, The Art of War
+              “He will win who, prepared himself, waits to take the enemy unprepared.” ― Sun Tzu, The Art of War
             </h3>
           </div>
           <Image
@@ -44,19 +42,15 @@ export default function Wallet() {
 
       <Card className="bg-gray-800 border-gray-700">
         <CardContent className="p-6">
-          <WalletDetails />
-        </CardContent>
-      </Card>
-
-      <Card className="bg-gray-800 border-gray-700">
-        <CardContent className="p-6">
-          <NetworkInfo />
-        </CardContent>
-      </Card>
-
-      <Card className="bg-gray-800 border-gray-700">
-        <CardContent className="p-6">
-          <AccountInfo />
+          <h3 className="text-3xl font-bold mb-2">
+            <div className="flex">
+              <Store className="mr-2" />
+              Marketplace
+            </div>
+          </h3>
+          <h3>Trade (buy & sell) NFT game assets on APTOS</h3>
+          <br />
+          <h3>COMIN SOON ...</h3>
         </CardContent>
       </Card>
 

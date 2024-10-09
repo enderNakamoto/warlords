@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
-import { Sword, Shield, Trophy, HelpCircle, Wallet, LayoutDashboard, Github, Book, X } from "lucide-react";
+import { Sword, Shield, Trophy, HelpCircle, Wallet, Store, LayoutDashboard, Github, Book, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -70,6 +70,15 @@ export default function GameLayout({ children }: { children: ReactNode }) {
                 >
                   <Trophy className="mr-2" />
                   Rankings
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/marketplace"
+                  className={`flex items-center p-2 rounded hover:bg-gray-700 ${route === "/marketplace" ? "text-yellow-300" : ""}`}
+                >
+                  <Store className="mr-2" />
+                  Marketplace
                 </Link>
               </li>
               <hr className="text-gray-500" />
