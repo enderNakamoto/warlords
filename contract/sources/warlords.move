@@ -25,13 +25,18 @@ module warlords_addr::warlords {
     const ERR_CANNOT_ATTACK_SELF: u64 = 6;
     // Error code indicating that the last tick was too soon, min tick interval need to pass
     const ERR_TICK_TOO_SOON: u64 = 7;
+    // Error code indicating that the last tick was too soon, min tick interval need to pass
+    const ERR WEATHER_CHANGE_TOO_SOON: u64 = 8;
     // Error code indicating player has already joined the game
-    const ERR_ALREADY_JOINED: u64 = 8;
+    const ERR_ALREADY_JOINED: u64 = 9;
     // Error code indicating player has NOT joined the game
-    const ERR_NOT_JOINED: u64 = 9;
+    const ERR_NOT_JOINED: u64 = 10;
 
     // ================================= Constants ============================== //
-    const TICK_INTERVAL: u64 = 1; // 1 hour in seconds
+
+    const TICK_INTERVAL: u64 = 3599; // 1 hour in seconds - 1 seconds 
+    const WEATHER_CHANGE_INTERVAL: u64 = 3599; // 1 hour in seconds - 1 seconds
+    const MAX_TURNS: u64 = 100;
     const MAX_DEFENSE_SIZE: u64 = 1600;
     const MAX_ATTACKER_SIZE: u64 = 2000;
     const INITIAL_TURN: u64 = 10;
@@ -56,7 +61,7 @@ module warlords_addr::warlords {
     const SEVERE_DISADVANTAGE: u64 = 50; // 50% disadvantage
 
     // max random modifier
-    const MAX_RANDOM_MODIFIER: u64 = 105; // 5% bonus
+    const MAX_RANDOM_MODIFIER: u64 = 175; // 125% bonus
 
 
     // ================================= State/Structs/Enums ================================== //
@@ -188,62 +193,12 @@ module warlords_addr::warlords {
         player_state.turns = player_state.turns - 1;
     }
 
-
-    // Attack function to attack the castle based on randomness 
+    // Attack function to attack the castle based on the current weather and random bonus
     // Since it uses the random api, it is marked as private
     // We prevent undergasing attack by making sure both winning and losing paths have same gas costs
     // in our case, we do the same calculations regardless of the random outcome
     #[randomness]
-    entry fun attack_with_randomness(attacker: &signer) acquires PlayerState, GameState {
-        let attacker_addr = signer::address_of(attacker);
-        let attacker_state = borrow_global_mut<PlayerState>(attacker_addr);
-
-        // players can only attack if they have enough turns 
-        assert!(attacker_state.turns >= TURNS_NEEDED_TO_ATTACK, ERR_NOT_ENOUGH_TURNS);
-
-        // players cannot attack themselves
-        let game_state = borrow_global_mut<GameState>(@warlords_addr);
-        assert!(game_state.castle.king != attacker_addr, ERR_CANNOT_ATTACK_SELF);
-
-        let attacker_strength = calculate_effective_strength(&attacker_state.army, game_state.castle.weather.value);
-        let defender_strength = calculate_effective_strength(&game_state.castle.defense, game_state.castle.weather.value);
-
-        let random_bonus = randomness::u64_range(0, MAX_RANDOM_MODIFIER);
-        attacker_strength = attacker_strength * random_bonus / 100;
-
-        let winner: address;
-        let default_defense_army: Army = Army { archers: 500, cavalry: 500, infantry: 500 };
-
-        if (attacker_strength > defender_strength) {
-            // Attacker wins
-            game_state.castle.king = attacker_addr;
-            game_state.castle.defense = default_defense_army;
-            game_state.castle.last_king_change = timestamp::now_seconds();
-            winner = attacker_addr;
-            attacker_state.points = attacker_state.points + 1;
-            if (attacker_state.points > game_state.highest_scorer.player_points) {
-                game_state.highest_scorer = HighestScorer { player_address: attacker_addr, player_points: attacker_state.points };
-            }
-        } else {
-            // Defender wins
-            winner = game_state.castle.king;
-        };
-
-        attacker_state.turns = attacker_state.turns - TURNS_NEEDED_TO_ATTACK;
-        game_state.number_of_attacks = game_state.number_of_attacks + 1;
-
-        event::emit(AttackEvent {
-            attacker: attacker_addr,
-            defender: game_state.castle.king,
-            attacker_army: attacker_state.army,
-            defender_army: game_state.castle.defense,
-            winner,
-        });
-    }
-
-
-    // Attack function to attack the castle based on the current weather
-    public entry fun attack(attacker: &signer) acquires PlayerState, GameState {
+    entry fun attack(attacker: &signer) acquires PlayerState, GameState {
 
         let attacker_addr = signer::address_of(attacker);
         let attacker_state = borrow_global_mut<PlayerState>(attacker_addr);
@@ -257,6 +212,15 @@ module warlords_addr::warlords {
 
         let attacker_strength = calculate_effective_strength(&attacker_state.army, game_state.castle.weather.value);
         let defender_strength = calculate_effective_strength(&game_state.castle.defense, game_state.castle.weather.value);
+
+        // random bonus to the defender strength
+        // defenders have a max of 1600 strength, attackers have a max of 2000 strength
+        // at random bonus of 125, the defender will have 1600 * 125 / 100 = 2000 strength (equal to attacker)
+        // so, 100 - 125, attacker wins, 125 - 175, defender wins
+        // chance of defender winning = (175-125) / (175-100) = 50/75 = 66.67%
+        // thereforw, to beat the defender, attacker must time the attack with a good weather
+        let random_bonus = randomness::u64_range(NO_EFFECT, MAX_RANDOM_MODIFIER);
+        defender_strength = defender_strength * random_bonus / 100;
 
         let winner: address;
         let default_defense_army: Army = Army { archers: 500, cavalry: 500, infantry: 500 };
@@ -290,7 +254,6 @@ module warlords_addr::warlords {
     }
 
     public entry fun defend(sender: &signer, archers: u64, cavalry: u64, infantry: u64) acquires GameState {
-
         let sender_addr = signer::address_of(sender);
         let game_state_mut = borrow_global_mut<GameState>(@warlords_addr);
 
@@ -305,12 +268,16 @@ module warlords_addr::warlords {
     }
 
     public entry fun set_weather(sender: &signer, new_weather: u8) acquires GameState {
-
-        // let sender_addr = signer::address_of(sender);
+        let sender_addr = signer::address_of(sender);
         let game_state_mut = borrow_global_mut<GameState>(@warlords_addr);
 
-        // only the weatherman can set valid weather 
-        // assert!(game_state_mut.weatherman == sender_addr, ERR_NOT_WEATHERMAN);
+        // make sure weather is not changed too soon
+        assert!(current_time >= game_state_mut.last_tick_timestamp + WEATHER_CHANGE_INTERVAL, ERR_WEATHER_CHANGE_TOO_SOON);
+
+        // only the weatherman can set valid weather
+        assert!(game_state_mut.weatherman == sender_addr, ERR_NOT_WEATHERMAN);
+
+        // make sure the weather is valid
         assert!(new_weather <= THUNDERSTORM, ERR_INVALID_WEATHER);
 
         game_state_mut.castle.weather = Weather { 
@@ -319,8 +286,8 @@ module warlords_addr::warlords {
         };
     }
 
+    // no need to gate it, anyone should be able to advance the game state (turns)
     public entry fun tick_tock() acquires GameState, PlayerState {
-
         let game_state_mut = borrow_global_mut<GameState>(@warlords_addr);
         let current_time = timestamp::now_seconds();
         let new_game_turn = game_state_mut.game_turn + 1;
@@ -333,14 +300,15 @@ module warlords_addr::warlords {
         game_state_mut.game_turn = new_game_turn;
         
         // go through all the players, and increase their turns 
-
         let players = &game_state_mut.player_addresses;
         let len = vector::length<address>(players);
 
         for (i in 0..len) {
             let addr = *vector::borrow(players, i);
             let player_state = borrow_global_mut<PlayerState>(addr);
-            player_state.turns = player_state.turns + 1;
+            if (player_state.turns < MAX_TURNS) {
+                player_state.turns = player_state.turns + 1;
+            }
         };
 
         event::emit(TickEvent {
@@ -478,8 +446,8 @@ module warlords_addr::warlords {
 
     #[test_only]
     #[lint::allow_unsafe_randomness]
-    public fun attack_with_randomness_for_test(attacker: &signer) acquires PlayerState, GameState {
-        attack_with_randomness(attacker);
+    public fun attack_for_test(attacker: &signer) acquires PlayerState, GameState {
+        attack(attacker);
     }
 
 }
