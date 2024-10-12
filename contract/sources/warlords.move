@@ -26,7 +26,7 @@ module warlords_addr::warlords {
     // Error code indicating that the last tick was too soon, min tick interval need to pass
     const ERR_TICK_TOO_SOON: u64 = 7;
     // Error code indicating that the last tick was too soon, min tick interval need to pass
-    const ERR WEATHER_CHANGE_TOO_SOON: u64 = 8;
+    const ERR_WEATHER_CHANGE_TOO_SOON: u64 = 8;
     // Error code indicating player has already joined the game
     const ERR_ALREADY_JOINED: u64 = 9;
     // Error code indicating player has NOT joined the game
@@ -272,6 +272,7 @@ module warlords_addr::warlords {
         let game_state_mut = borrow_global_mut<GameState>(@warlords_addr);
 
         // make sure weather is not changed too soon
+        let current_time = timestamp::now_seconds();
         assert!(current_time >= game_state_mut.last_tick_timestamp + WEATHER_CHANGE_INTERVAL, ERR_WEATHER_CHANGE_TOO_SOON);
 
         // only the weatherman can set valid weather
