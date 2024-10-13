@@ -233,4 +233,46 @@ module warlords_addr::unit_tests {
         assert!(alice_turns == max_turns, 1);
     }
 
+    // Test the defend function
+    #[test(aptos_framework = @0x1, warlords_addr = @warlords_addr)]
+    fun test_defend_success(aptos_framework: &signer, warlords_addr: &signer) {
+        let (alice, _bob) = setup_test(aptos_framework, warlords_addr);
+
+        // Make Alice the king
+        warlords::set_king_for_test(&alice);
+
+        // Alice sets up defense
+        warlords::defend(&alice, 400, 500, 600);
+
+        // Check if defense was set correctly
+        let (king, defense, _, _, _) = warlords::get_castle_info();
+        assert!(king == ALICE_ADDRESS, 0);
+        let (archers, cavalry, infantry) = warlords::get_army_details(&defense);
+        assert!(archers == 400 && cavalry == 500 && infantry == 600, 1);
+    }
+
+    #[test(aptos_framework = @0x1, warlords_addr = @warlords_addr)]
+    #[expected_failure(abort_code = ERR_INVALID_ARMY_SIZE, location = warlords_addr::warlords)]
+    fun test_defend_failure_invalid_army_size(aptos_framework: &signer, warlords_addr: &signer) {
+        let (alice, _bob) = setup_test(aptos_framework, warlords_addr);
+
+        // Make Alice the king
+        warlords::set_king_for_test(&alice);
+
+        // Alice tries to set up defense with invalid army size (exceeding MAX_DEFENSE_SIZE)
+        warlords::defend(&alice, 1000, 1000, 1000); // Total: 3000, which should exceed MAX_DEFENSE_SIZE
+    }
+
+    #[test(aptos_framework = @0x1, warlords_addr = @warlords_addr)]
+    #[expected_failure(abort_code = ERR_NOT_KING, location = warlords_addr::warlords)]
+    fun test_defend_failure_not_king(aptos_framework: &signer, warlords_addr: &signer) {
+        let (alice, bob) = setup_test(aptos_framework, warlords_addr);
+
+        // Make Alice the king
+        warlords::set_king_for_test(&alice);
+
+        // Bob tries to set up defense (should fail as he's not the king)
+        warlords::defend(&bob, 400, 500, 600);
+    }
+
 }

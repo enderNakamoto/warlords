@@ -420,4 +420,11 @@ module warlords_addr::warlords {
         player_state.turns = turns;
     }
 
+    #[test_only]
+    public fun set_king_for_test(player: &signer) acquires GameState {
+        let player_addr = signer::address_of(player);
+        let game_state = borrow_global_mut<GameState>(@warlords_addr);
+        game_state.castle.king = player_addr;
+    }
+
 }
