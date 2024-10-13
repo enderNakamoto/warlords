@@ -4,9 +4,9 @@
 - **GitHub Repository**: [https://github.com/enderNakamoto/warlords](https://github.com/enderNakamoto/warlords)
 - **Website**: [https://warlords.vercel.app/](https://warlords.vercel.app/)
 - **Testnet Address**: [https://explorer.aptoslabs.com/object/0xee1dada4f9bbce01099f0bf865475f3a273f63afb02e473005ef289ceed5c44c/modules/code/warlords?network=testnet](https://explorer.aptoslabs.com/object/0xee1dada4f9bbce01099f0bf865475f3a273f63afb02e473005ef289ceed5c44c/modules/code/warlords?network=testnet)
-- **Acurast Weather Oracle Repository**: 
-- **Acurast Decentralized Keeper Repository**: 
-- **Backup Cron Job Repository for Demo**: 
+- **Acurast Weather Oracle Repository**: https://github.com/Cloakworks-collective/shogun-weather-oracle
+- **Acurast Decentralized Keeper Repository**: https://github.com/Cloakworks-collective/shogun-keeper
+- **Backup Cron Job Repository for Demo**: https://github.com/Cloakworks-collective/shogun_backup_cron
 
 ## Introduction
 
@@ -29,7 +29,7 @@ The following diagram shows all the public entry functions and the oracle/keeper
 
 The Diagram above shows the user actions, and the automated actions of Acurast processors (cron jobs):
 
-Main Actions a Player Can Take (public entry functions called by players) are as follow:
+Main Actions a Player Can Take (public entry functions called by players) are as follows:
 
 - **Join the Game**: Upon joining the game, a player's default values are initialized in the game state. Players are provided with an army that has a default troop composition.
   
@@ -45,7 +45,7 @@ The scripts running in Acurast’s TEE handle the following automated tasks (pub
   
 - **Update Player State**: Updates player statuses every hour.
 
-## Acurast Integration and trust assumptions
+## Acurast Integration (Oracle and Keeper) and trust assumptions:
 
 Acurast is a decentralized and trustless compute execution layer, leveraging Trust Execution Environments opening up the capability to have Acurast’s Processors (off-chain workers) fetch, sign and submit data on-chain completely trustless and confidential. The processors are highly decentralized and uses processing power of old mobile phones. 
 
