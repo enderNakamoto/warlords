@@ -159,12 +159,13 @@ module warlords_addr::warlords {
 
         // random bonus to the defender strength
         // defenders have a max of 1600 strength, attackers have a max of 2000 strength
-        // at random bonus of 125, the defender will have 1600 * 125 / 100 = 2000 strength (equal to attacker)
-        // so, 100 - 125, attacker wins, 125 - 175, defender wins
-        // chance of defender winning = (175-125) / (175-100) = 50/75 = 66.67%
-        // thereforw, to beat the defender, attacker must time the attack with a good weather
+        // to give defenders an advantage, we will give them a random bonus
+        // random bonus is between 0 and 1000, when random bonus is below 0-400, attacker wins, between 400-1000, defender wins
+        // the chance of defender winning is (1000 - 400)/1000 = 60%
+        // therefore, to beat the defender, attacker must time the attack with a good weather
+        // let random_bonus =  get_random_number(constants::no_effect(), constants::max_random_modifier());
         let random_bonus = randomness::u64_range(constants::no_effect(), constants::max_random_modifier());
-        defender_strength = defender_strength * random_bonus / 100;
+        defender_strength = defender_strength + random_bonus;
 
         let winner: address;
         let default_defense_army: Army = Army { archers: 500, cavalry: 500, infantry: 500 };
@@ -336,11 +337,25 @@ module warlords_addr::warlords {
 
     // ======================== Helper functions ========================
 
-    fun calculate_random_bonus(army: &Army, random_bonus: u8): u64 {
-        let base = calculate_base_strength(army);
-        let effective_random: u64 = random_bonus as u64;
-        base * effective_random / 100
-    }
+    // #[randomness]
+    // public fun get_random_number(min: u64, max: u64): u64 {
+    //     randomness::u64_range(min, max)
+    // }
+    
+    // #[randomness]
+    // fun get_random_number(account: &signer, min: u64, max: u64): u64 acquires TestRandomNumber {
+    //     let signer_address = signer::address_of(account);
+    //     if (exists<TestRandomNumber>(signer_address)) {
+    //         let test_random = borrow_global<TestRandomNumber>(signer_address);
+    //         if (option::is_some(&test_random.value)) {
+    //             let random = *option::borrow(&test_random.value);
+    //             if (random >= min && random <= max) {
+    //                 return random
+    //             }
+    //         }
+    //     };
+    //     randomness::u64_range(min, max)
+    // }
 
     fun calculate_base_strength(army: &Army): u64 {
         army.archers + army.cavalry + army.infantry

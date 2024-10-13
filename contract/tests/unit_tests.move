@@ -23,6 +23,7 @@ module warlords_addr::unit_tests {
     const ERR_ALREADY_JOINED: u64 = 9;
     const ERR_NOT_JOINED: u64 = 10;
 
+
     // Test accounts
     const ALICE_ADDRESS: address = @0xA11CE;
     const BOB_ADDRESS: address = @0xB0B;
@@ -315,5 +316,113 @@ module warlords_addr::unit_tests {
         // Bob tries to set up defense (should fail as he's not the king)
         warlords::defend(&bob, 400, 500, 600);
     }
+
+    // Test the attack function
+    // Test a successful attack
+    #[test(aptos_framework = @0x1, warlords_addr = @warlords_addr)]
+    fun test_successful_attack(aptos_framework: &signer, warlords_addr: &signer) {
+        let (alice, bob) = setup_test(aptos_framework, warlords_addr);
+
+        // Alice joins the game and becomes the king with a weak army
+        warlords::join_game(&alice, string::utf8(b"Alice"));
+        warlords::set_king_for_test(&alice);
+        warlords::defend(&alice, 10, 10, 10);
+
+         // Check initial game state
+        let (king, defense, _, _, _) = warlords::get_castle_info();
+        assert!(king == ALICE_ADDRESS, 1);
+        let (archers, cavalry, infantry) = warlords::get_army_details(&defense);
+        assert!(archers == 10 && cavalry == 10 && infantry == 10, 2);
+
+        // Bob joins with a stronger army
+        warlords::join_game(&bob, string::utf8(b"Bob"));
+        warlords::mobilize(&bob, 500, 500, 500); // Much stronger army
+
+         // Check Bob's initial state
+        let (_, bob_army, bob_turns, bob_points) = warlords::get_player_state(BOB_ADDRESS);
+        let (bob_archers, bob_cavalry, bob_infantry) = warlords::get_army_details(&bob_army);
+        assert!(bob_archers == 500 && bob_cavalry == 500 && bob_infantry == 500, 3);
+        let initial_bob_turns = bob_turns;
+        let initial_bob_points = bob_points;
+
+        // Bob attacks - randomness and weather should not affect the outcome
+        warlords::attack_for_test(&bob);
+
+        // Check that Bob is now king
+        let (new_king, new_defense, _, _, _) = warlords::get_castle_info();
+        assert!(new_king == BOB_ADDRESS, 4);
+
+        // Check that the castle defense has been reset to default
+        let (new_archers, new_cavalry, new_infantry) = warlords::get_army_details(&new_defense);
+        assert!(new_archers == 500 && new_cavalry == 500 && new_infantry == 500, 5);
+
+         // Check Bob's state after attack
+        let (_, _, bob_turns_after, bob_points_after) = warlords::get_player_state(BOB_ADDRESS);
+        assert!(bob_turns_after == initial_bob_turns - constants::turns_needed_to_attack(), 6);
+        assert!(bob_points_after == initial_bob_points + 1, 7);
+
+        // check highest scorer after successful attack
+        let (highest_scorer, highest_score) = warlords::get_highest_scorer();
+        assert!(highest_scorer == BOB_ADDRESS, 8);
+        assert!(highest_score == 1, 9);
+    }
+
+    // Test a failed attack
+    #[test(aptos_framework = @0x1, warlords_addr = @warlords_addr)]
+    fun test_failed_attack(aptos_framework: &signer, warlords_addr: &signer) {
+        let (alice, bob) = setup_test(aptos_framework, warlords_addr);
+
+        // Alice joins the game and becomes the king with a strong army
+        warlords::join_game(&alice, string::utf8(b"Alice"));
+        warlords::set_king_for_test(&alice);
+        warlords::defend(&alice, 500, 500, 500);
+
+        // Store initial states for Alice
+        let (_, _, alice_initial_turns, alice_initial_points) = warlords::get_player_state(ALICE_ADDRESS);
+
+        // Check initial game state
+        let (king, defense, _, _, _) = warlords::get_castle_info();
+        assert!(king == ALICE_ADDRESS, 1);
+        let (archers, cavalry, infantry) = warlords::get_army_details(&defense);
+        assert!(archers == 500 && cavalry == 500 && infantry == 500, 2);
+
+        // Bob joins with a weaker army
+        warlords::join_game(&bob, string::utf8(b"Bob"));
+        warlords::mobilize(&bob, 10, 10, 10); // Weaker army
+
+        // Check Bob's initial state
+        let (_, bob_army, bob_initial_turns, bob_initial_points) = warlords::get_player_state(BOB_ADDRESS);
+        let (bob_archers, bob_cavalry, bob_infantry) = warlords::get_army_details(&bob_army);
+        assert!(bob_archers == 10 && bob_cavalry == 10 && bob_infantry == 10, 3);
+
+        // Get initial attack count
+        let initial_attack_count = warlords::get_number_of_attacks();
+
+        // Bob attacks - should fail due to weaker army
+        warlords::attack_for_test(&bob);
+
+        // Check that Alice is still king
+        let (new_king, new_defense, _, _, _) = warlords::get_castle_info();
+        assert!(new_king == ALICE_ADDRESS, 4);
+
+        // Check that the castle defense remains unchanged
+        let (new_archers, new_cavalry, new_infantry) = warlords::get_army_details(&new_defense);
+        assert!(new_archers == 500 && new_cavalry == 500 && new_infantry == 500, 5);
+
+        // Check Bob's state after failed attack
+        let (_, _, bob_turns_after, bob_points_after) = warlords::get_player_state(BOB_ADDRESS);
+        assert!(bob_turns_after == bob_initial_turns - constants::turns_needed_to_attack(), 6);
+        assert!(bob_points_after == bob_initial_points, 7); // Points should not change
+
+        // Check Alice's state after successful defense
+        let (_, _, alice_turns_after, alice_points_after) = warlords::get_player_state(ALICE_ADDRESS);
+        assert!(alice_turns_after == alice_initial_turns, 8); // Alice's turns should not change
+        assert!(alice_points_after == alice_initial_points, 9); // Alice's points should not change
+
+        // Check that the number of attacks in the game state has increased
+        let new_attack_count = warlords::get_number_of_attacks();
+        assert!(new_attack_count == initial_attack_count + 1, 10);
+    }
+
 
 }

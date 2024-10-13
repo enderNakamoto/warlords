@@ -52,7 +52,7 @@ module warlords_addr::constants {
     const SEVERE_DISADVANTAGE: u64 = 50; // 50% disadvantage
 
     // max random modifier
-    const MAX_RANDOM_MODIFIER: u64 = 175; // 175% bonus
+    const MAX_RANDOM_MODIFIER: u64 = 1000; 
 
     // Public functions to access error constants
     public fun err_invalid_army_size(): u64 { ERR_INVALID_ARMY_SIZE }
