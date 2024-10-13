@@ -9,60 +9,7 @@ module warlords_addr::warlords {
     use aptos_framework::randomness;
     use aptos_framework::event;
 
-    // ================================= Errors ================================= //
-
-    // Error indicating that Army size is not valid
-    const ERR_INVALID_ARMY_SIZE: u64 = 1;
-    // Error indicating that not enough turns are left for the action
-    const ERR_NOT_ENOUGH_TURNS: u64 = 2;
-    // Error indicating that the signer is not the king
-    const ERR_NOT_KING: u64 = 3;
-    // error code indicating that someone other than weatherman tried to change weather
-    const ERR_NOT_WEATHERMAN: u64 = 4;
-    // Error code indicating that the weatherman is trying to set a different weather
-    const ERR_INVALID_WEATHER: u64 = 5;
-    // Error code indicating that a player cannot attack themselves
-    const ERR_CANNOT_ATTACK_SELF: u64 = 6;
-    // Error code indicating that the last tick was too soon, min tick interval need to pass
-    const ERR_TICK_TOO_SOON: u64 = 7;
-    // Error code indicating that the last tick was too soon, min tick interval need to pass
-    const ERR_WEATHER_CHANGE_TOO_SOON: u64 = 8;
-    // Error code indicating player has already joined the game
-    const ERR_ALREADY_JOINED: u64 = 9;
-    // Error code indicating player has NOT joined the game
-    const ERR_NOT_JOINED: u64 = 10;
-
-    // ================================= Constants ============================== //
-
-    const TICK_INTERVAL: u64 = 3599; // 1 hour in seconds - 1 seconds 
-    const WEATHER_CHANGE_INTERVAL: u64 = 3599; // 1 hour in seconds - 1 seconds
-    const MAX_TURNS: u64 = 100;
-    const MAX_DEFENSE_SIZE: u64 = 1600;
-    const MAX_ATTACKER_SIZE: u64 = 2000;
-    const INITIAL_TURN: u64 = 10;
-    const WEATHER_BONUS_MULTIPLIER: u64 = 15; // 15% bonus
-    const TURNS_NEEDED_TO_MOBILIZE: u64 = 1; 
-    const TURNS_NEEDED_TO_ATTACK: u64 = 3;
-    
-    // possible weather conditions that can be set
-    const CLEAR: u8 = 0;
-    const CLOUDS: u8 = 1;
-    const SNOW: u8 = 2;
-    const RAIN: u8 = 3;
-    const DRIZZLE: u8 = 4;
-    const THUNDERSTORM: u8 = 5;
-
-    // unit strength modifiers - Percentage modifiers (to avoid floating-point operations)
-    const EXTREME_ADVANTAGE: u64 = 125; // 25% advantage
-    const SIGNIFICANT_ADVANTAGE: u64 = 115; // 15% advantage
-    const NO_EFFECT: u64 = 100;
-    const SIGNIFICANT_DISADVANTAGE: u64 = 85; // 15% disadvantage
-    const EXTREME_DISADVANTAGE: u64 = 75; // 25% disadvantage
-    const SEVERE_DISADVANTAGE: u64 = 50; // 50% disadvantage
-
-    // max random modifier
-    const MAX_RANDOM_MODIFIER: u64 = 175; // 125% bonus
-
+    use warlords_addr::constants;
 
     // ================================= State/Structs/Enums ================================== //
 
@@ -139,7 +86,7 @@ module warlords_addr::warlords {
             castle: Castle {
                 king: sender_addr,
                 defense: Army { archers: 500, cavalry: 500, infantry: 500 },
-                weather: Weather { value: CLEAR, last_weather_change: timestamp::now_seconds() },
+                weather: Weather { value: constants::clear(), last_weather_change: timestamp::now_seconds() },
                 last_king_change: timestamp::now_seconds()
             },
             weatherman: sender_addr,
@@ -160,12 +107,12 @@ module warlords_addr::warlords {
     public entry fun join_game(sender: &signer, general_name: String) acquires GameState {
         let sender_addr = signer::address_of(sender);
 
-        assert!(!exists<PlayerState>(sender_addr), ERR_ALREADY_JOINED);
+        assert!(!exists<PlayerState>(sender_addr), constants::err_already_joined());
 
         move_to(sender, PlayerState {
             general_name: general_name,
             army: Army { archers: 500, cavalry: 500, infantry: 500 },
-            turns: INITIAL_TURN,
+            turns: constants::initial_turn(),
             points: 0
         });
 
@@ -181,13 +128,13 @@ module warlords_addr::warlords {
         infantry: u64
     ) acquires PlayerState {
         let sender_addr = signer::address_of(sender);
-        assert!(exists<PlayerState>(sender_addr), ERR_NOT_JOINED);
+        assert!(exists<PlayerState>(sender_addr), constants::err_not_joined());
 
         let player_state = borrow_global_mut<PlayerState>(sender_addr);
-        assert!(player_state.turns >= TURNS_NEEDED_TO_MOBILIZE, ERR_NOT_ENOUGH_TURNS);
+        assert!(player_state.turns >= constants::turns_needed_to_mobilize(), constants::err_not_enough_turns());
 
         let army = Army { archers, cavalry, infantry };
-        assert!(calculate_base_strength(&army) <= MAX_ATTACKER_SIZE, ERR_INVALID_ARMY_SIZE);
+        assert!(calculate_base_strength(&army) <= constants::max_attacker_size(), constants::err_invalid_army_size());
 
         player_state.army = army;
         player_state.turns = player_state.turns - 1;
@@ -204,11 +151,11 @@ module warlords_addr::warlords {
         let attacker_state = borrow_global_mut<PlayerState>(attacker_addr);
 
         // players can only attack if they have enough turns 
-        assert!(attacker_state.turns >= TURNS_NEEDED_TO_ATTACK, ERR_NOT_ENOUGH_TURNS);
+        assert!(attacker_state.turns >= constants::turns_needed_to_attack(), constants::err_not_enough_turns());
 
         // players cannot attack themselves
         let game_state = borrow_global_mut<GameState>(@warlords_addr);
-        assert!(game_state.castle.king != attacker_addr, ERR_CANNOT_ATTACK_SELF);
+        assert!(game_state.castle.king != attacker_addr, constants::err_cannot_attack_self());
 
         let attacker_strength = calculate_effective_strength(&attacker_state.army, game_state.castle.weather.value);
         let defender_strength = calculate_effective_strength(&game_state.castle.defense, game_state.castle.weather.value);
@@ -219,7 +166,7 @@ module warlords_addr::warlords {
         // so, 100 - 125, attacker wins, 125 - 175, defender wins
         // chance of defender winning = (175-125) / (175-100) = 50/75 = 66.67%
         // thereforw, to beat the defender, attacker must time the attack with a good weather
-        let random_bonus = randomness::u64_range(NO_EFFECT, MAX_RANDOM_MODIFIER);
+        let random_bonus = randomness::u64_range(constants::no_effect(), constants::max_random_modifier());
         defender_strength = defender_strength * random_bonus / 100;
 
         let winner: address;
@@ -240,7 +187,7 @@ module warlords_addr::warlords {
             winner = game_state.castle.king;
         };
 
-        attacker_state.turns = attacker_state.turns - TURNS_NEEDED_TO_ATTACK;
+        attacker_state.turns = attacker_state.turns - constants::turns_needed_to_attack();
         game_state.number_of_attacks = game_state.number_of_attacks + 1;
 
         event::emit(AttackEvent {
@@ -258,11 +205,11 @@ module warlords_addr::warlords {
         let game_state_mut = borrow_global_mut<GameState>(@warlords_addr);
 
         // only the current castle king can change the castle defense 
-        assert!(game_state_mut.castle.king == sender_addr, ERR_NOT_KING);
+        assert!(game_state_mut.castle.king == sender_addr, constants::err_not_king());
 
         let army = Army { archers, cavalry, infantry };
         // defending army has to follow game rules
-        assert!(calculate_base_strength(&army) <= MAX_DEFENSE_SIZE, ERR_INVALID_ARMY_SIZE);
+        assert!(calculate_base_strength(&army) <= constants::max_defense_size(), constants::err_invalid_army_size());
 
         game_state_mut.castle.defense = army;
     }
@@ -273,13 +220,16 @@ module warlords_addr::warlords {
 
         // make sure weather is not changed too soon
         let current_time = timestamp::now_seconds();
-        assert!(current_time >= game_state_mut.last_tick_timestamp + WEATHER_CHANGE_INTERVAL, ERR_WEATHER_CHANGE_TOO_SOON);
+        assert!(
+            current_time >= game_state_mut.last_tick_timestamp + constants::weather_change_interval(), 
+            constants::err_weather_change_too_soon()
+        );
 
         // only the weatherman can set valid weather
-        assert!(game_state_mut.weatherman == sender_addr, ERR_NOT_WEATHERMAN);
+        assert!(game_state_mut.weatherman == sender_addr, constants::err_not_weatherman());
 
         // make sure the weather is valid
-        assert!(new_weather <= THUNDERSTORM, ERR_INVALID_WEATHER);
+        assert!(new_weather <= constants::thunderstorm(), constants::err_invalid_weather());
 
         game_state_mut.castle.weather = Weather { 
             value: new_weather, 
@@ -294,7 +244,10 @@ module warlords_addr::warlords {
         let new_game_turn = game_state_mut.game_turn + 1;
 
         // make sure turns are not increased prematurely
-        assert!(current_time >= game_state_mut.last_tick_timestamp + TICK_INTERVAL, ERR_TICK_TOO_SOON);
+        assert!(
+            current_time >= game_state_mut.last_tick_timestamp + constants::tick_interval(), 
+            constants::err_tick_too_soon()
+        );
 
 
         game_state_mut.last_tick_timestamp = current_time;
@@ -307,7 +260,7 @@ module warlords_addr::warlords {
         for (i in 0..len) {
             let addr = *vector::borrow(players, i);
             let player_state = borrow_global_mut<PlayerState>(addr);
-            if (player_state.turns < MAX_TURNS) {
+            if (player_state.turns < constants::max_turns()) {
                 player_state.turns = player_state.turns + 1;
             }
         };
@@ -333,8 +286,14 @@ module warlords_addr::warlords {
     }
 
     #[view]
+    public fun get_player_addresses(): vector<address> acquires GameState {
+        *&borrow_global<GameState>(@warlords_addr).player_addresses
+    }
+
+
+    #[view]
     public fun get_player_state(player: address): (String, Army, u64, u64) acquires PlayerState {
-        assert!(exists<PlayerState>(player), ERR_NOT_JOINED);
+        assert!(exists<PlayerState>(player), constants::err_not_joined());
         let player_state = borrow_global<PlayerState>(player);
         (player_state.general_name, player_state.army, player_state.turns, player_state.points)
     }
@@ -357,6 +316,10 @@ module warlords_addr::warlords {
         game_state.highest_scorer.player_points
     }
 
+    #[view]
+    public fun get_game_turn(): u64 acquires GameState {
+        borrow_global<GameState>(@warlords_addr).game_turn
+    }
 
     // ======================== Helper functions ========================
 
@@ -385,52 +348,55 @@ module warlords_addr::warlords {
     }
 
     fun get_archer_modifier(weather: u8): u64 {
-        if (weather == CLEAR) {
-            EXTREME_ADVANTAGE
-        } else if (weather == CLOUDS) {
-            SIGNIFICANT_ADVANTAGE
-        } else if (weather == SNOW) {
-            NO_EFFECT
-        } else if (weather == RAIN || weather == DRIZZLE) {
-            SIGNIFICANT_DISADVANTAGE
-        } else if (weather == THUNDERSTORM) {
-            EXTREME_DISADVANTAGE
+        if (weather == constants::clear()) {
+            constants::extreme_advantage()
+        } else if (weather == constants::clouds()) {
+            constants::significant_advantage()
+        } else if (weather == constants::snow()) {
+            constants::no_effect()
+        } else if (weather == constants::rain() || weather == constants::drizzle()) {
+            constants::significant_disadvantage()
+        } else if (weather == constants::thunderstorm()) {
+            constants::extreme_disadvantage()
         } else {
-            NO_EFFECT // Default case, should never happen
+            constants::no_effect() // Default case, should never happen
         }
     }
 
     fun get_cavalry_modifier(weather: u8): u64 {
-        if (weather == CLEAR) {
-            SIGNIFICANT_ADVANTAGE
-        } else if (weather == CLOUDS) {
-            EXTREME_ADVANTAGE
-        } else if (weather == SNOW || weather == DRIZZLE) {
-            SIGNIFICANT_DISADVANTAGE
-        } else if (weather == RAIN) {
-            EXTREME_DISADVANTAGE
-        } else if (weather == THUNDERSTORM) {
-            SEVERE_DISADVANTAGE
+        if (weather == constants::clear()) {
+            constants::significant_advantage()
+        } else if (weather == constants::clouds()) {
+            constants::extreme_advantage()
+        } else if (weather == constants::snow() || weather == constants::drizzle()) {
+            constants::significant_disadvantage()
+        } else if (weather == constants::rain()) {
+            constants::extreme_disadvantage()
+        } else if (weather == constants::thunderstorm()) {
+            constants::severe_disadvantage()
         } else {
-            NO_EFFECT // Default case, should never happen
+            constants::no_effect() // Default case, should never happen
         }
     }
 
     fun get_infantry_modifier(weather: u8): u64 {
-        if (weather == CLEAR || weather == CLOUDS) {
-            NO_EFFECT
-        } else if (weather == DRIZZLE || weather == SNOW) {
-            SIGNIFICANT_ADVANTAGE
-        } else if (weather == RAIN || weather == THUNDERSTORM) {
-            EXTREME_ADVANTAGE
+        if (weather == constants::clear() || weather == constants::clouds()) {
+            constants::no_effect()
+        } else if (weather == constants::drizzle() || weather == constants::snow()) {
+            constants::significant_advantage()
+        } else if (weather == constants::rain() || weather == constants::thunderstorm()) {
+            constants::extreme_advantage()
         } else {
-            NO_EFFECT // Default case, should never happen
+            constants::no_effect() // Default case, should never happen
         }
     }
 
-
     public fun get_army_strength(army: &Army): u64 {
         army.archers + army.cavalry + army.infantry
+    }
+
+    public fun get_army_details(army: &Army): (u64, u64, u64) {
+        (army.archers, army.cavalry, army.infantry)
     }
 
     // ======================== Test Helper functions ========================
@@ -441,14 +407,17 @@ module warlords_addr::warlords {
     }
 
     #[test_only]
-    public fun get_army_details(army: &Army): (u64, u64, u64) {
-        (army.archers, army.cavalry, army.infantry)
-    }
-
-    #[test_only]
     #[lint::allow_unsafe_randomness]
     public fun attack_for_test(attacker: &signer) acquires PlayerState, GameState {
         attack(attacker);
+    }
+
+    #[test_only]
+    public fun set_player_turns_for_test(player: &signer, turns: u64) acquires PlayerState {
+        let player_addr = signer::address_of(player);
+        assert!(exists<PlayerState>(player_addr), constants::err_not_joined());
+        let player_state = borrow_global_mut<PlayerState>(player_addr);
+        player_state.turns = turns;
     }
 
 }
