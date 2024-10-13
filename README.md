@@ -3,10 +3,12 @@
 ## Game Links
 - **Main Game GitHub Repository**: [https://github.com/enderNakamoto/warlords](https://github.com/enderNakamoto/warlords)
 - **Website**: [https://warlords.vercel.app/](https://warlords.vercel.app/)
+- **Presentation Google SLides**:https://docs.google.com/presentation/d/e/2PACX-1vTPDKKdjG6MbdqS16YsyjS1_vX8WBNADJ3gW9fk8CH7cdoQgRbTPZqyRKDxxeBOqoJCI2zJ_8em-j5l/pub?start=false&loop=false&delayms=30000
 - **Testnet Address**: [https://explorer.aptoslabs.com/object/0xee1dada4f9bbce01099f0bf865475f3a273f63afb02e473005ef289ceed5c44c/modules/code/warlords?network=testnet](https://explorer.aptoslabs.com/object/0xee1dada4f9bbce01099f0bf865475f3a273f63afb02e473005ef289ceed5c44c/modules/code/warlords?network=testnet)
 - **Acurast Weather Oracle Github Repository**: https://github.com/Cloakworks-collective/shogun-weather-oracle
 - **Acurast Decentralized Keeper Github Repository**: https://github.com/Cloakworks-collective/shogun-keeper
 - **Backup Cron Job Github Repository**: https://github.com/Cloakworks-collective/shogun_backup_cron
+
 
 ## Introduction
 
