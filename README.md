@@ -1,44 +1,17 @@
 ![alt text](images/cover.png)
 
-## Introduction  
+## Introduction
 
-Shogun is a fully on-chain game on Aptos L1 written in Move. The core innovation of this project is leveraging [Acurast](https://docs.acurast.com) to run Node.js scripts, making it an oracle for non-financial data, such as weather conditions. In our case, we retrieve weather data from the OpenWeather API with minimal trust assumptions that affects the in-game battle mechanics. Additionally, Acurast processors act as decentralized keepers by running scheduled cron jobs.
+Set in the Edo period of Japan, the goal of *Shogun* is to seize control of Edo Castle. Real-time weather conditions in Tokyo (historically Edo) directly impact gameplay and strategy. For example, rain hinders cavalry charges but strengthens infantry, while clear skies provide a bonus to cavalry, enhancing their effectiveness in battle.
 
-Set in the Edo period of Japan, the goal of the game is to gain control of Edo Castle. Real-time weather conditions in Tokyo(Edo) directly affect gameplay and strategy, e.g. rain stunts cavalry charges but empowers infantry, while clear skies provide an extra bonus to cavalry, enhancing their effectiveness in battle.
+*Shogun* is a fully on-chain game on the Aptos L1, built using Move. The core innovations of this project include:
 
-Here are the main actions a player can take:
+- **Leveraging Acurast**: We utilize [Acurast](https://docs.acurast.com) to run Node.js scripts, acting as an **oracle** for non-financial data, such as weather. Weather data is fetched from the OpenWeather API with minimal trust assumptions and influences the in-game battle mechanics. Tokyo's weather is updated every 6 hours.
 
-* Join the Game
-* Set Castle Defense (only the current Shogun, the lord of the castle edo, can do this)
-* Attack Castle Edo 
-* Mobilize Army (determine the composition of the attacking army)
+- **Decentralized Keepers**: Acurast processors serve as decentralized **keepers**, executing scheduled cron jobs. In our game, player statuses are updated every hour. This mechanism can be extended to support other decentralized, turn-based games on Aptos.
 
-The Scripts in Acurast Trusted Execution Environment (TEE) handles the following tasks:
+- **Aptos Randomness API**: We incorporate the [Aptos randomness API](https://aptos.dev/en/build/smart-contracts/randomness) to add an element of chance to battles. Combined with weather dependency, this randomness creates a more dynamic, realistic, and enjoyable battle strategy experience.
 
-* Update Weather Conditions (every 6 hours)
-* Set Player Turns (for all registered players, every hour)
-
-## Quick Start 
-
-- Download the project
-
-- cd into project's folder
-
-- Create .env file by example and fill required values (NEXT_PUBLIC_MODULE_ADDRESS is not required)
-
-- Run:
-
-```
-
-npm install
-
-npm run move:publish
-
-npm run dev
-
-```
-
-Boilerplate info: https://aptos.dev/en/build/create-aptos-dapp/templates/boilerplate
 
 ## Game Architecture
 
@@ -46,11 +19,31 @@ The following diagram shows all the public entry functions and the oracle/keeper
 
 ![alt text](images/architecture.png)
 
+The Diagram above shows the user actions, and the automated actions of Acurast processors (cron jobs):
+
+Main Actions a Player Can Take (public entry functions called by players) are as follow:
+
+- **Join the Game**: Upon joining the game, a player's default values are initialized in the game state. Players are provided with an army that has a default troop composition.
+  
+- **Mobilize Army**: After joining the game, players can modify the composition of their attacking army.
+
+- **Attack Castle Edo**: Players can challenge Edo Castle. If they succeed, they become the next Shogun.
+
+- **Set Castle Defense**: Only the current Shogun, the lord of Edo Castle, has the authority to change the troop composition of the defending army.
+
+The scripts running in Acurast’s TEE handle the following automated tasks (public entry functions called by cron jobs):
+
+- **Update Weather Conditions**: Fetches and updates the weather data every 6 hours.
+  
+- **Update Player State**: Updates player statuses every hour.
+
 ## Acurast Integration and trust assumptions
 
 Acurast is a decentralized and trustless compute execution layer, leveraging Trust Execution Environments opening up the capability to have Acurast’s Processors (off-chain workers) fetch, sign and submit data on-chain completely trustless and confidential. The processors are highly decentralized and uses processing power of old mobile phones. 
 
-For our proof of concept, deployed nodejs script on a Acurast processor fetches that weather data from [openweathermap api](https://openweathermap.org/current). Assuming that the data from Openweather API is correct, the data is forwarded to the game smart contract (move module) without additional trust overhead. It is signed by a preassigned weatherman, verifying that the incoming data comes from the acurast processor. 
+On Aptos, fetching non-price feed data can be difficult. However, we believe that Aptos smart contracts can receive Web2 API data through Acurast TEE processors with minimal trust assumptions. As a result, we decided to run scripts containing the [aptos-ts-sdk](https://github.com/aptos-labs/aptos-ts-sdk) inside Acurast processors.
+
+For our proof of concept, we deployed nodejs script on a Acurast processor fetches that weather data from [openweathermap api](https://openweathermap.org/current). Assuming that the data from Openweather API is correct, the data is forwarded to the game smart contract (move module) without additional trust overhead. It is signed by a preassigned weatherman, verifying that the incoming data comes from the acurast processor. 
 
 The acurast data sets the weather condition to one of the following options, based on the [weather condition codes of the api](https://openweathermap.org/weather-conditions)
 
@@ -64,41 +57,51 @@ The acurast data sets the weather condition to one of the following options, bas
 ```
 Each weather condition affects the effectiveness of the units, adding a layer of strategy to the game. 
 
-Moreover, we also use a second script to call `tick_tock()` function of the module to update player states every turn. This is a proof of concept use of Acurast processors as keepers. This function is not gated (anyone call this), however there is an internal check that only affects the game state if it is called after 1 hr has passed. In the future, we can offer a small bounty for bots to call this every hour -- turning it into a robust decentralized keeper.
+Moreover, we also use a second script to call `tick_tock()` function of the module to update player states every turn. This is a proof of concept use of Acurast processors as ** decentralized keepers**. This function is not gated (anyone call this), however there is an internal check that only affects the game state if it is called after 1 hr has passed.
 
 Note: You can find out more on Acurast's trust minimized processing [here](https://docs.acurast.com/acurast-protocol/architecture/end-to-end/)
 
+Acurast processor clusters are highly decentralized and permissionless, allowing anyone to join and contribute, making the network more resilient and distributed. The picture below showcases various processor clusters. The one on the left represents our cluster, where our proof-of-concept scripts are currently running. In production, we plan to deploy to a randomly selected processor within the Acurast ecosystem (ones that we do not own), with multiple redundancies to further minimize trust assumptions and enhance reliability.
+
+![alt text](images/acurast_cluster.png)
+
 ## Implementation details - Game rules
 
-When a player joins the game, they start with 10 turns and a default attacking army of 500 archers, 500 cavalry, and 500 infantry. Players can mobilize and change their army composition at any time for a cost of 3 turns, with a maximum total army size of 2,000 units.
+When a player joins the game, they start with 10 turns and a default attacking army consisting of 500 archers, 500 cavalry, and 500 infantry. Players can mobilize and modify their army composition at any time for a cost of 3 turns, with a maximum army size of 2,000 units.
 
-Players can attack Edo Castle (Tokyo) at the cost of 10 turns. The Acurast Keepers (cron jobs) ensure that players receive one turn every hour, with each turn representing one in-game day.
+Attacking Edo Castle (Tokyo) costs 10 turns. Acurast Keepers (cron jobs) ensure that players receive 1 turn every hour, with each turn representing one in-game day.
 
-If a player wins the battle, they become the next Shogun of Tokyo, gaining the ability to set the defense of the castle (an army of up to 1,600 units). A player cannot attack themselves, and each successful attack earns 1 point. These points determine a player's rank on the leaderboard. Once a player wins the castle, they cannot be attacked for 2 turns, giving the player a chance to set custom defense.
+If a player wins the battle, they become the next Shogun of Tokyo, gaining the ability to set the castle's defense with an army of up to 1,600 units. Players cannot attack themselves, and each successful attack earns 1 point, which contributes to their rank on the leaderboard.
 
-The game resets every 365 turns, which equates to one in-game year (approximately 15 real-life days). At the end of each game year, the player with the most points on the leaderboard wins. The next age ( game year) is named after the last age's winner. The first and current year is named - "Era of Satoshi Nakamoto".
+To maintain fairness, we use the Aptos Randomness API, which gives defenders a 60% chance of winning battles. Therefore, attackers must carefully consider weather conditions and their troop composition to increase their chances of success.
 
+The current Shogun can also continually adjust their defending army composition to strengthen their hold on the castle and prolong their reign.
 
-## Future Game Enhancements:
+## Future Game Enhancements
 
-Sky is the limit when it comes to addition of game features. However, the main things to be added before a production launch is as follows: 
+The possibilities for adding new features are endless, but the key enhancements we plan to implement before a full production launch include:
 
-* Making the turns scarce, so people can only attack once every 1-2 days, and adding the ability for players to "buy" turns. 
+- **Turn Scarcity and Purchasable Turns**: Players will only be able to attack once every 1-2 days, introducing scarcity to the game. Additionally, players will have the ability to "buy" extra turns.
 
-* Aptos collected from players buying the turns will be distributed between the current Shogun, and the treasury in a 70/30 split. This will incentivize attacking and defending a castle. 
+- **Incentivized Attacks and Defenses**: Aptos collected from players buying turns will be distributed between the current Shogun and the treasury in a 70/30 split. This system will incentivize both attacking the castle and defending the Shogun position. Players will be encouraged to attack and hold the position of Shogun (pay-to-hold), earning rewards in the process.
 
-* cACU and APT tokens are needed for Acurast Processors to run the oracles and keepers. The treasury money will be allocated for that.
+- **Funding Acurast Processors**: The cACU and APT tokens are required for Acurast Processors to run the oracles and keepers. A portion of the treasury funds will be allocated to cover these operational costs.
 
-* Multiple Castles can be added, each with unique weather associated to it's location. For someone to be Shogun, they will have to be holding majority of the castles, instead of just one.
+- **Multiple Castles with Unique Weather**: We plan to add multiple castles to the game, each with weather conditions tied to its specific location. To become the Shogun, a player must hold a majority of the castles, rather than just one, adding new layers of strategy.
 
-## Tools used
+We plan to apply for the Aptos developer grant to help launch this game into production.
 
-- NextJs
-- shadcn/ui + tailwind for styling
-- Aptos TS SDK
-- Aptos Wallet Adapter
-- Move Smart contracts 
-- Acurast TEE Oracles (Nodejs Scripts running in Acurat processors)
+## Quick Start (Localhost)
+- Download the project
+- cd into project's folder
+- Create .env file by example and fill required values (NEXT_PUBLIC_MODULE_ADDRESS is not required)
+- Run:
+```
+npm install
+npm run move:publish
+npm run dev
+```
+We used the [Aptos boilerplate](https://aptos.dev/en/build/create-aptos-dapp/templates/boilerplate) as the starting point for our project
 
 ## Available commands
 
@@ -109,32 +112,9 @@ Sky is the limit when it comes to addition of game features. However, the main t
 - `npm run move:upgrade` - a command to upgrade the Move contract
 - `npm run deploy` - a command to deploy the dapp to Vercel
 
+## Test Coverage 
 
-## Progress
+Our smart contract (Warlord Module) has comprehensive test coverage. We have implemented unit tests for all public entry functions, ensuring that key aspects of the game function as intended. To simulate different outcomes, we mock the randomness API to test various conditions where either the attacker or defender wins. Additionally, we mock weather conditions to thoroughly test how battles play out under different weather scenarios.
 
-### Smart Contract and Oracle 
+![alt text](images/test_coverage.png)
 
-| Feature | Started | Basic | Completed |
-| :--------- | :------ | :-----  | :----- |
-| Init | [x] | [x] | [] |
-| Join | [x] | [x] | [] |
-| Mobilize | [x] | [x] | [] |
-| Attack | [x] | [x] | [] |
-| Defend | [x] | [x] | [] |
-| Set Weather | [x] | [] | [] |
-| Tick | [x] | [] | [] |
-| Get Player State | [x] | [x] | [] |
-| Get Castle State | [x] | [x] | [] |
-| Get Tick State | [x] | [x] | [] |
-| Named Object For Storage | [] | [] | [] |
-| Simple Battle | [x] | [] | [] |
-| Randomness Battle | [x] | [] | [] |
-| Complicated Battle | [] | [] | [] |
-
-
-### Frontend 
-
-| Feature | Started | Basic | Completed |
-| :--------- | :------ | :-----  | :----- |
-| Landing Page | [x] | [] | [] |
-| Dashboard | [x] | [] | [] |
