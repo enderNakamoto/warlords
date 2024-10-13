@@ -424,5 +424,116 @@ module warlords_addr::unit_tests {
         assert!(new_attack_count == initial_attack_count + 1, 10);
     }
 
+    #[test(aptos_framework = @0x1, warlords_addr = @warlords_addr)]
+    #[expected_failure(abort_code = ERR_CANNOT_ATTACK_SELF, location = warlords_addr::warlords)]
+    fun test_cannot_attack_self(aptos_framework: &signer, warlords_addr: &signer) {
+        let (alice, _) = setup_test(aptos_framework, warlords_addr);
 
+        // Alice joins the game and becomes the king
+        warlords::join_game(&alice, string::utf8(b"Alice"));
+        warlords::set_king_for_test(&alice);
+
+        // Alice attempts to attack herself (should fail)
+        warlords::attack_for_test(&alice);
+    }
+
+    #[test(aptos_framework = @0x1, warlords_addr = @warlords_addr)]
+    #[expected_failure(abort_code = ERR_NOT_ENOUGH_TURNS, location = warlords_addr::warlords)]
+    fun test_attack_without_enough_turns(aptos_framework: &signer, warlords_addr: &signer) {
+        let (alice, bob) = setup_test(aptos_framework, warlords_addr);
+
+        // Alice joins the game and becomes the king
+        warlords::join_game(&alice, string::utf8(b"Alice"));
+        warlords::set_king_for_test(&alice);
+
+        // Bob joins the game
+        warlords::join_game(&bob, string::utf8(b"Bob"));
+
+        // Reduce Bob's turns to below the required amount
+        let turns_needed = constants::turns_needed_to_attack();
+        warlords::set_turns_for_test(&bob, turns_needed - 1);
+
+        // Bob attempts to attack without enough turns (should fail)
+        warlords::attack_for_test(&bob);
+    }
+
+    // Test battle results with different random values
+    #[test(aptos_framework = @0x1, warlords_addr = @warlords_addr)]
+    fun test_attack_with_different_random_values(aptos_framework: &signer, warlords_addr: &signer) {
+        let (alice, bob) = setup_test(aptos_framework, warlords_addr);
+
+        // Alice joins the game and becomes the king with a moderately strong army
+        warlords::join_game(&alice, string::utf8(b"Alice"));
+        warlords::set_king_for_test(&alice);
+        warlords::defend(&alice, 500, 500, 500);  // Total strength: 1500
+
+        // Bob joins with a slightly stronger army
+        warlords::join_game(&bob, string::utf8(b"Bob"));
+        warlords::mobilize(&bob, 600, 600, 600);  // Total strength: 1800
+
+        // Test 1: Set a low random bonus for defense - Bob should win
+        warlords::set_mock_random_for_test(10);
+        warlords::attack_for_test(&bob);
+
+        // Check that Bob is now king
+        let (new_king, _, _, _, _) = warlords::get_castle_info();
+        assert!(new_king == BOB_ADDRESS, 1);
+
+        // Reset the game state for the next test
+        warlords::set_king_for_test(&alice);
+        warlords::defend(&alice, 500, 500, 500);
+ 
+        // Test 2: Set a high random bonus for defense - Bob should lose
+        warlords::set_mock_random_for_test(900);
+        warlords::attack_for_test(&bob);
+
+        // Check that Alice is still king
+        let (king_after_failed_attack, _, _, _, _) = warlords::get_castle_info();
+        assert!(king_after_failed_attack == ALICE_ADDRESS, 4);
+    }
+
+    // Test Battle Results with different weather conditions, and constant random value 
+    #[test(aptos_framework = @0x1, warlords_addr = @warlords_addr)]
+    fun test_attack_with_different_weather(aptos_framework: &signer, warlords_addr: &signer) {
+        let (alice, bob) = setup_test(aptos_framework, warlords_addr);
+
+        // Setting a constant random value for the test
+        warlords::set_mock_random_for_test(500);
+
+        // Alice joins the game and becomes the king with a moderately strong army
+        warlords::join_game(&alice, string::utf8(b"Alice"));
+        warlords::set_king_for_test(&alice);
+        // Total strength: 1500, with random bonus: 500 -> 2000
+        warlords::defend(&alice, 500, 500, 500);  
+
+        // Bob joins with cavalry heavy army
+        warlords::join_game(&bob, string::utf8(b"Bob"));
+        warlords::mobilize(&bob, 600, 800, 600);  // Total strength: 2000
+
+        // Set weather to cloudy to change battle dynamics
+        timestamp::fast_forward_seconds(constants::weather_change_interval() + 1);
+        warlords::set_weather(warlords_addr, constants::clouds());
+
+        // Bob attacks - Bob should win because cavalry has bonus in cloudy weather
+        warlords::attack_for_test(&bob);
+
+        // Check that Bob is now king
+        let (new_king, _, _, _, _) = warlords::get_castle_info();
+        assert!(new_king == BOB_ADDRESS, 1);
+
+        // Reset the game state for the next test
+        warlords::set_king_for_test(&alice);
+        warlords::defend(&alice, 500, 500, 500);
+
+        // Set weather to thunderstorm to change battle dynamics
+        timestamp::fast_forward_seconds(constants::weather_change_interval() + 1);
+        warlords::set_weather(warlords_addr, constants::thunderstorm());
+
+        // Bob attacks - Bob should lose because cavalry has penalty in thunderstorm
+        warlords::attack_for_test(&bob);
+
+        // Check that Alice is still king
+        let (king_after_failed_attack, _, _, _, _) = warlords::get_castle_info();
+        assert!(king_after_failed_attack == ALICE_ADDRESS, 4);
+    }
 }

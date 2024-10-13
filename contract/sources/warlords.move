@@ -43,7 +43,8 @@ module warlords_addr::warlords {
         game_turn: u64,
         last_tick_timestamp: u64,
         player_addresses: vector<address>, // all the players that joined the game
-        highest_scorer: HighestScorer
+        highest_scorer: HighestScorer,
+        mock_random: u64
     }
 
     // Store current leader address and points
@@ -94,7 +95,8 @@ module warlords_addr::warlords {
             game_turn: 0,
             last_tick_timestamp: 0,
             player_addresses: vector::empty<address>(),
-            highest_scorer: HighestScorer { player_address: sender_addr, player_points: 0 }
+            highest_scorer: HighestScorer { player_address: sender_addr, player_points: 0 },
+            mock_random: 0
         });
     }
 
@@ -163,8 +165,10 @@ module warlords_addr::warlords {
         // random bonus is between 0 and 1000, when random bonus is below 0-400, attacker wins, between 400-1000, defender wins
         // the chance of defender winning is (1000 - 400)/1000 = 60%
         // therefore, to beat the defender, attacker must time the attack with a good weather
-        // let random_bonus =  get_random_number(constants::no_effect(), constants::max_random_modifier());
         let random_bonus = randomness::u64_range(constants::no_effect(), constants::max_random_modifier());
+        if (game_state.mock_random != 0) {
+            random_bonus = game_state.mock_random;
+        };
         defender_strength = defender_strength + random_bonus;
 
         let winner: address;
@@ -337,26 +341,6 @@ module warlords_addr::warlords {
 
     // ======================== Helper functions ========================
 
-    // #[randomness]
-    // public fun get_random_number(min: u64, max: u64): u64 {
-    //     randomness::u64_range(min, max)
-    // }
-    
-    // #[randomness]
-    // fun get_random_number(account: &signer, min: u64, max: u64): u64 acquires TestRandomNumber {
-    //     let signer_address = signer::address_of(account);
-    //     if (exists<TestRandomNumber>(signer_address)) {
-    //         let test_random = borrow_global<TestRandomNumber>(signer_address);
-    //         if (option::is_some(&test_random.value)) {
-    //             let random = *option::borrow(&test_random.value);
-    //             if (random >= min && random <= max) {
-    //                 return random
-    //             }
-    //         }
-    //     };
-    //     randomness::u64_range(min, max)
-    // }
-
     fun calculate_base_strength(army: &Army): u64 {
         army.archers + army.cavalry + army.infantry
     }
@@ -453,6 +437,20 @@ module warlords_addr::warlords {
         let player_addr = signer::address_of(player);
         let game_state = borrow_global_mut<GameState>(@warlords_addr);
         game_state.castle.king = player_addr;
+    }
+
+    #[test_only]
+    public fun set_turns_for_test(player: &signer, turns: u64) acquires PlayerState {
+        let player_addr = signer::address_of(player);
+        assert!(exists<PlayerState>(player_addr), constants::err_not_joined());
+        let player_state = borrow_global_mut<PlayerState>(player_addr);
+        player_state.turns = turns;
+    }
+
+    #[test_only]
+    public fun set_mock_random_for_test(random: u64) acquires GameState {
+        let game_state = borrow_global_mut<GameState>(@warlords_addr);
+        game_state.mock_random = random;
     }
 
 }
