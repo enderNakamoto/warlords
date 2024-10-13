@@ -1,5 +1,13 @@
 ![alt text](images/cover.png)
 
+## Game Links
+- **GitHub Repository**: [https://github.com/enderNakamoto/warlords](https://github.com/enderNakamoto/warlords)
+- **Website**: [https://warlords.vercel.app/](https://warlords.vercel.app/)
+- **Testnet Address**: [https://explorer.aptoslabs.com/object/0xee1dada4f9bbce01099f0bf865475f3a273f63afb02e473005ef289ceed5c44c/modules/code/warlords?network=testnet](https://explorer.aptoslabs.com/object/0xee1dada4f9bbce01099f0bf865475f3a273f63afb02e473005ef289ceed5c44c/modules/code/warlords?network=testnet)
+- **Acurast Weather Oracle Repository**: 
+- **Acurast Decentralized Keeper Repository**: 
+- **Backup Cron Job Repository for Demo**: 
+
 ## Introduction
 
 Set in the Edo period of Japan, the goal of *Shogun* is to seize control of Edo Castle. Real-time weather conditions in Tokyo (historically Edo) directly impact gameplay and strategy. For example, rain hinders cavalry charges but strengthens infantry, while clear skies provide a bonus to cavalry, enhancing their effectiveness in battle.
@@ -75,7 +83,27 @@ If a player wins the battle, they become the next Shogun of Tokyo, gaining the a
 
 To maintain fairness, we use the Aptos Randomness API, which gives defenders a 60% chance of winning battles. Therefore, attackers must carefully consider weather conditions and their troop composition to increase their chances of success.
 
+```rust
+        // random bonus to the defender strength
+        // defenders have a max of 1600 strength, attackers have a max of 2000 strength
+        // to give defenders an advantage, we will give them a random bonus
+        // random bonus is between 0 and 1000, when random bonus is below 0-400, attacker wins, between 400-1000, defender wins
+        // the chance of defender winning is (1000 - 400)/1000 = 60%
+        // therefore, to beat the defender, attacker must time the attack with a good weather
+        let random_bonus = randomness::u64_range(constants::no_effect(), constants::max_random_modifier());
+        if (game_state.mock_random != 0) {
+            random_bonus = game_state.mock_random;
+        };
+        defender_strength = defender_strength + random_bonus;
+```
+
 The current Shogun can also continually adjust their defending army composition to strengthen their hold on the castle and prolong their reign.
+
+## Test Coverage 
+
+Our smart contract (Warlord Module) has comprehensive test coverage. We have implemented unit tests for all public entry functions, ensuring that key aspects of the game function as intended. To simulate different outcomes, we mock the randomness API to test various conditions where either the attacker or defender wins. Additionally, we mock weather conditions to thoroughly test how battles play out under different weather scenarios.
+
+![alt text](images/test_coverage.png)
 
 ## Future Game Enhancements
 
@@ -111,10 +139,3 @@ We used the [Aptos boilerplate](https://aptos.dev/en/build/create-aptos-dapp/tem
 - `npm run move:compile` - a command to compile the Move contract
 - `npm run move:upgrade` - a command to upgrade the Move contract
 - `npm run deploy` - a command to deploy the dapp to Vercel
-
-## Test Coverage 
-
-Our smart contract (Warlord Module) has comprehensive test coverage. We have implemented unit tests for all public entry functions, ensuring that key aspects of the game function as intended. To simulate different outcomes, we mock the randomness API to test various conditions where either the attacker or defender wins. Additionally, we mock weather conditions to thoroughly test how battles play out under different weather scenarios.
-
-![alt text](images/test_coverage.png)
-
