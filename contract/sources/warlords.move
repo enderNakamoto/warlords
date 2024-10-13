@@ -101,9 +101,6 @@ module warlords_addr::warlords {
 
     // ======================== Write functions ========================
 
-    /*
-    *  
-    */
     public entry fun join_game(sender: &signer, general_name: String) acquires GameState {
         let sender_addr = signer::address_of(sender);
 
@@ -319,6 +316,22 @@ module warlords_addr::warlords {
     #[view]
     public fun get_game_turn(): u64 acquires GameState {
         borrow_global<GameState>(@warlords_addr).game_turn
+    }
+
+    #[view]
+    public fun get_highest_scorer(): (address, u64) acquires GameState {
+        let game_state = borrow_global<GameState>(@warlords_addr);
+        (game_state.highest_scorer.player_address, game_state.highest_scorer.player_points)
+    }
+
+    #[view]
+    public fun get_number_of_attacks(): u64 acquires GameState {
+        borrow_global<GameState>(@warlords_addr).number_of_attacks
+    }
+
+    #[view]
+    public fun get_weatherman(): address acquires GameState {
+        borrow_global<GameState>(@warlords_addr).weatherman
     }
 
     // ======================== Helper functions ========================

@@ -6,6 +6,7 @@ module warlords_addr::unit_tests {
 
     use aptos_framework::account;
     use aptos_framework::timestamp;
+    use aptos_framework::randomness;
 
     use warlords_addr::warlords;
     use warlords_addr::constants;
@@ -33,9 +34,49 @@ module warlords_addr::unit_tests {
 
         warlords::init_module_for_test(warlords_addr);
 
+        randomness::initialize_for_testing(aptos_framework);
+        randomness::set_seed(x"0000000000000000000000000000000000000000000000000000000000000000");
+
         let alice = account::create_account_for_test(ALICE_ADDRESS);
         let bob = account::create_account_for_test(BOB_ADDRESS);
         (alice, bob)
+    }
+
+    // Test the init_module function 
+    #[test(aptos_framework = @0x1, warlords_addr = @warlords_addr)]
+    fun test_init_default_values(aptos_framework: &signer, warlords_addr: &signer) {
+        // Set up the test environment
+        let (_alice, _bob) = setup_test(aptos_framework, warlords_addr);
+
+        // Check castle info
+        let (king, defense, weather, _, _) = warlords::get_castle_info();
+        
+        // Check king
+        assert!(king == @warlords_addr, 0);
+        
+        // Check default defense
+        let (archers, cavalry, infantry) = warlords::get_army_details(&defense);
+        assert!(archers == 500 && cavalry == 500 && infantry == 500, 1);
+        
+        // Check initial weather
+        assert!(weather == constants::clear(), 2);
+
+        // Check game state
+        assert!(warlords::get_number_of_attacks() == 0, 3);
+        assert!(warlords::get_game_turn() == 0, 4);
+        assert!(warlords::get_last_tick_timestamp() == 0, 5);
+
+        // Check player addresses (should be empty)
+        let player_addresses = warlords::get_player_addresses();
+        assert!(std::vector::is_empty(&player_addresses), 6);
+
+        // Check highest scorer (should be the deployer with 0 points)
+        let (highest_scorer, highest_score) = warlords::get_highest_scorer();
+        assert!(highest_scorer == @warlords_addr, 7);
+        assert!(highest_score == 0, 8);
+
+        // Check weatherman
+        assert!(warlords::get_weatherman() == @warlords_addr, 9);
     }
 
     // Test the join_game function

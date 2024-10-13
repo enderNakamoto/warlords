@@ -2,165 +2,142 @@
 module warlords_addr::test_end_to_end {
     // use std::string;
     // use std::signer;
+
     // use aptos_framework::account;
     // use aptos_framework::timestamp;
+    // use aptos_framework::randomness;
 
     // use warlords_addr::warlords;
+    // use warlords_addr::constants;
+
+    // const ALICE_ADDRESS: address = @0xA11CE;
+    // const BOB_ADDRESS: address = @0xB0B;
+
+    // // Setup function to initialize the module and create test accounts
+    // fun setup_test(aptos_framework: &signer, warlords_addr: &signer): (signer, signer) {
+    //     timestamp::set_time_has_started_for_testing(aptos_framework);
+
+    //     warlords::init_module_for_test(warlords_addr);
+
+    //     randomness::initialize_for_testing(aptos_framework);
+    //     randomness::set_seed(x"0000000000000000000000000000000000000000000000000000000000000000");
+
+    //     let alice = account::create_account_for_test(ALICE_ADDRESS);
+    //     let bob = account::create_account_for_test(BOB_ADDRESS);
+    //     (alice, bob)
+    // }
 
     // #[test(aptos_framework = @0x1, warlords_addr = @warlords_addr)]
-    // fun test_end_to_end(aptos_framework: &signer, warlords_addr: &signer) {
-    //     // Set up the aptos framework for testing
-    //     // account::create_account_for_test(@0x1);
-    //     // timestamp::set_time_has_started_for_testing(aptos_framework);
+    // fun test_end_to_end_battle(aptos_framework: &signer, warlords_addr: &signer) {
+    //     // Setup test
+    //     let (alice, bob) = setup_test(aptos_framework, warlords_addr);
 
-    //     // // Initialize the warlords module
-    //     // warlords::init_module_for_test(warlords_addr);
+    //     // Test after initialization
+    //     let (king, defense, weather, _, _) = warlords::get_castle_info();
 
-    //     // // Test after initialization
-    //     // let (king, defense, weather) = warlords::get_castle_info();
+    //     // In the beginning, king is the deployer
+    //     assert!(king == @warlords_addr, 0);
+    //     // Weather defaults to CLEAR
+    //     assert!(weather == constants::clear(), 1);
 
-    //     // // in the beginning king is the deployer
-    //     // assert!(king == @warlords_addr, 5);
-    //     // // weather defaults to CLEAR (0)
-    //     // assert!(weather == 0, 4);
+    //     // Defense gets default defending army
+    //     let (archers, cavalry, infantry) = warlords::get_army_details(&defense);
+    //     assert!(archers == 500 && cavalry == 500 && infantry == 500, 2);
 
-    //     // // defense gets default defending army
-    //     // let (archers, cavalry, infantry) = warlords::get_army_details(&defense);
-    //     // assert!(archers == 500 && cavalry == 500 && infantry == 500, 1);
+    //     // Player Alice joins the game
+    //     warlords::join_game(&alice, string::utf8(b"Napoleon"));
 
+    //     // Check player status for Alice after joining
+    //     let (general, army, turns, points) = warlords::get_player_state(ALICE_ADDRESS);
+    //     assert!(general == string::utf8(b"Napoleon"), 3);
+    //     let (archers, cavalry, infantry) = warlords::get_army_details(&army);
+    //     assert!(archers == 500 && cavalry == 500 && infantry == 500, 4);
+    //     assert!(turns == constants::initial_turn(), 5);
+    //     assert!(points == 0, 6);
 
-    //     // // Create test accounts
-    //     // let alice = account::create_account_for_test(@0xCAFE);
-    //     // let bob = account::create_account_for_test(@0xFACE);
+    //     // Alice mobilizes their army
+    //     warlords::mobilize(&alice, 700, 700, 600);
 
-    //     // // Player Alice joins the game
-    //     // warlords::join_game(&alice, string::utf8(b"Napoleon"));
+    //     // Check player state for Alice after mobilization
+    //     let (_, army, turns, _) = warlords::get_player_state(ALICE_ADDRESS);
+    //     let (archers, cavalry, infantry) = warlords::get_army_details(&army);
+    //     assert!(archers == 700 && cavalry == 700 && infantry == 600, 7);
+    //     assert!(turns == constants::initial_turn() - constants::turns_needed_to_mobilize(), 8);
 
-    //     // // Check player status for Alice after joining! 
-    //     // let (general, army, turns, points) = warlords::get_player_state(signer::address_of(&alice));
-    //     // assert!(general == string::utf8(b"Napoleon"), 0);
-    //     // let (archers, cavalry, infantry) = warlords::get_army_details(&army);
-    //     // assert!(archers == 500 && cavalry == 500 && infantry == 500, 1);
-    //     // assert!(warlords::get_army_strength(&army) == 1500, 2);
-    //     // assert!(turns == 10, 3);
-    //     // assert!(points == 0, 4);
+    //     // Simulate time passing and tick the game
+    //     timestamp::fast_forward_seconds(constants::tick_interval() + 1);
+    //     warlords::tick_tock();
 
-    //     // // Alice mobilizes their army - changes her army composition from default
-    //     // warlords::mobilize(&alice, 500, 510, 500);
-
-    //     // // Check player state for Alice after mobilization 
-    //     // let (_, army, turns, points) = warlords::get_player_state(signer::address_of(&alice));
-    //     // let (archers, cavalry, infantry) = warlords::get_army_details(&army);
-    //     // // army composition changed
-    //     // assert!(archers == 500 && cavalry == 510 && infantry == 500, 1); 
-    //     // assert!(warlords::get_army_strength(&army) == 1510, 2);
-    //     // // lost a turn trying to mobilize
-    //     // assert!(turns == 9, 3);
-    //     // assert!(points == 0, 4);
-
-    //     // for (i in 0..3) {
-    //     //     // Simulate time passing
-    //     //     timestamp::fast_forward_seconds(3601); // Move time forward by more than TICK_INTERVAL
-    //     //     // Tick the game
-    //     //     warlords::tick_tock();
-    //     // };
-    //     // let (_, _, turns, _) = warlords::get_player_state(signer::address_of(&alice));
-    //     // // gained 3 turns in three ticks
-    //     // assert!(turns == 12, 3); 
-
-
-    //     // // Alice Attacks - She should win as she has more strength
-    //     // warlords::attack(&alice);
-
-    //     // // Check the castle state
-    //     // let (king, defense, _) = warlords::get_castle_info();
-    //     // // Alice should now be king
-    //     // assert!(king == signer::address_of(&alice), 4); 
-    //     // // defense gets default defending army
-    //     // let (archers, cavalry, infantry) = warlords::get_army_details(&defense);
-    //     // assert!(archers == 500 && cavalry == 500 && infantry == 500, 1);
-
-    //     // // Check Alice's state 
-    //     // let (_, _, turns, points) = warlords::get_player_state(signer::address_of(&alice));
-    //     // // lost turns while attacking
-    //     // assert!(turns == 9, 3);
-    //     // // gained points for winning
-    //     // assert!(points == 1, 4);
-
-    //     // // Alice sets defense for the castle
-    //     // warlords::defend(&alice, 100, 101, 100);
-
-    //     //  // Check the castle state after setting defense
-    //     // let (_, defense, _) = warlords::get_castle_info();
-    //     // // defense has now changed
-    //     // let (archers, cavalry, infantry) = warlords::get_army_details(&defense);
-    //     // assert!(archers == 100 && cavalry == 101 && infantry == 100, 1);
-    //     // assert!(warlords::get_army_strength(&defense) == 301, 2);
-
-    //     // // Bob joins the game! 
-    //     // warlords::join_game(&bob, string::utf8(b"Brutus"));
-
-    //     // // Check player status for Bob after joining! 
-    //     // let (general, army, turns, points) = warlords::get_player_state(signer::address_of(&bob));
-    //     // assert!(general == string::utf8(b"Brutus"), 0);
-    //     // let (archers, cavalry, infantry) = warlords::get_army_details(&army);
-    //     // assert!(archers == 500 && cavalry == 500 && infantry == 500, 1);
-    //     // assert!(warlords::get_army_strength(&army) == 1500, 2);
-    //     // assert!(turns == 10, 3); // starting with default turn of 2 
-    //     // assert!(points == 0, 4);
-
-    //     // // Bob mobilizes his army - changes army composition
-    //     // warlords::mobilize(&bob, 100, 71, 129);
-
-    //     // // Check player state for Bob after mobilization 
-    //     // let (_, army, turns, _) = warlords::get_player_state(signer::address_of(&bob));
-    //     // let (archers, cavalry, infantry) = warlords::get_army_details(&army);
-    //     // // army composition changed
-    //     // assert!(archers == 100 && cavalry == 71 && infantry == 129, 1); 
-    //     // assert!(warlords::get_army_strength(&army) == 300, 2);
-    //     // // lost a turn trying to mobilize
-    //     // assert!(turns == 9, 3);
-
-    //     // for (i in 0..3) {
-    //     //     // Simulate time passing
-    //     //     timestamp::fast_forward_seconds(3601); // Move time forward by more than TICK_INTERVAL
-    //     //     // Tick the game
-    //     //     warlords::tick_tock();
-    //     // };
-    //     // let (_, _, turns, _) = warlords::get_player_state(signer::address_of(&bob));
-    //     // // Bob ained 3 turns in three ticks
-    //     // assert!(turns == 12, 3); 
-
-    //     // // Bob attacks Castle(held by Alice) - It should fail as Alice is stronger
-    //     // warlords::attack(&bob);
+    //     // Alice Attacks
+    //     warlords::attack_for_test(&alice);
 
     //     // Check the castle state
-    //     // let (king, _, _) = warlords::get_castle_info();
-    //     // // Alice should remain the king
-    //     // assert!(king == signer::address_of(&alice), 4); 
+    //     let (king, defense, _, _, _) = warlords::get_castle_info();
+    //     // Alice should now be king
+    //     assert!(king == ALICE_ADDRESS, 9);
+    //     // Defense gets default defending army
+    //     let (archers, cavalry, infantry) = warlords::get_army_details(&defense);
+    //     assert!(archers == 500 && cavalry == 500 && infantry == 500, 10);
 
-    //     // now set weather to rainy
-    //     // warlords::set_weather(warlords_addr, 3);
-    //     // // check the castle state 
-    //     // let (_, _, weather) = warlords::get_castle_info();
-    //     // // weather changed to RAINY (1)
-    //     // assert!(weather == 3, 4);
+    //     // Check Alice's state
+    //     let (_, _, turns, points) = warlords::get_player_state(ALICE_ADDRESS);
+    //     assert!(turns == constants::initial_turn() - constants::turns_needed_to_mobilize() - constants::turns_needed_to_attack() + 1, 11);
+    //     assert!(points == 1, 12);
 
-    //     // Now that the weather has changed, Bob is suddenly stronger as Alice's cavalry is weaker
-    //     // warlords::attack(&bob);
-    //     // // Check the castle state
-    //     // let (king, _, _) = warlords::get_castle_info();
-    //     // // Bob should be the new king
-    //     // assert!(king == signer::address_of(&bob), 4); 
+    //     // Alice sets defense for the castle
+    //     warlords::defend(&alice, 600, 500, 400);
 
+    //     // Check the castle state after setting defense
+    //     let (_, defense, _, _, _) = warlords::get_castle_info();
+    //     let (archers, cavalry, infantry) = warlords::get_army_details(&defense);
+    //     assert!(archers == 600 && cavalry == 500 && infantry == 400, 13);
 
-    //     //Alice lowers the attack strength, and even with 5% bonus, she should lose
-    //     // warlords::mobilize(&alice, 50, 50, 50);
-    //     // warlords::attack_with_randomness_for_test(&alice);
+    //     // Bob joins the game
+    //     warlords::join_game(&bob, string::utf8(b"Brutus"));
 
-    //     // // Check the castle state
-    //     // let (king, _, _) = warlords::get_castle_info();
-    //     // // Bob should remain the king
-    //     // assert!(king == signer::address_of(&bob), 4);
+    //     // Check player status for Bob after joining
+    //     let (general, army, turns, points) = warlords::get_player_state(BOB_ADDRESS);
+    //     assert!(general == string::utf8(b"Brutus"), 14);
+    //     let (archers, cavalry, infantry) = warlords::get_army_details(&army);
+    //     assert!(archers == 500 && cavalry == 500 && infantry == 500, 15);
+    //     assert!(turns == constants::initial_turn(), 16);
+    //     assert!(points == 0, 17);
+
+    //     // Bob mobilizes his army
+    //     warlords::mobilize(&bob, 700, 700, 600);
+
+    //     // Simulate time passing and tick the game multiple times
+    //     for (_i in 0..3) {
+    //         timestamp::fast_forward_seconds(constants::tick_interval() + 1);
+    //         warlords::tick_tock();
+    //     };
+
+    //     // Bob attacks Castle (held by Alice) - It might fail due to randomness
+    //     warlords::attack_for_test(&bob);
+
+    //     // Set weather to rainy to change battle dynamics
+    //     timestamp::fast_forward_seconds(constants::weather_change_interval() + 1);
+    //     warlords::set_weather(warlords_addr, constants::rain());
+
+    //     // Check the castle state
+    //     let (_, _, weather, _, _) = warlords::get_castle_info();
+    //     assert!(weather == constants::rain(), 18);
+
+    //     // Bob attacks again with rainy weather
+    //     warlords::attack_for_test(&bob);
+
+    //     // Check the castle state - Bob might be the new king depending on the random factor
+    //     let (king, _, _, _, _) = warlords::get_castle_info();
+    //     if (king == BOB_ADDRESS) {
+    //         let (_, _, _, points) = warlords::get_player_state(BOB_ADDRESS);
+    //         assert!(points == 1, 19);
+    //     } else {
+    //         assert!(king == ALICE_ADDRESS, 20);
+    //     };
+
+    //      // Check the highest scorer
+    //     let (highest_scorer, highest_score) = warlords::get_highest_scorer();
+    //     assert!(highest_score == 1, 21);
+    //     assert!(highest_scorer == ALICE_ADDRESS || highest_scorer == BOB_ADDRESS, 22);
     // }
 }
