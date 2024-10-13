@@ -1,12 +1,12 @@
 ![alt text](images/cover.png)
 
 ## Game Links
-- **GitHub Repository**: [https://github.com/enderNakamoto/warlords](https://github.com/enderNakamoto/warlords)
+- **Main Game GitHub Repository**: [https://github.com/enderNakamoto/warlords](https://github.com/enderNakamoto/warlords)
 - **Website**: [https://warlords.vercel.app/](https://warlords.vercel.app/)
 - **Testnet Address**: [https://explorer.aptoslabs.com/object/0xee1dada4f9bbce01099f0bf865475f3a273f63afb02e473005ef289ceed5c44c/modules/code/warlords?network=testnet](https://explorer.aptoslabs.com/object/0xee1dada4f9bbce01099f0bf865475f3a273f63afb02e473005ef289ceed5c44c/modules/code/warlords?network=testnet)
-- **Acurast Weather Oracle Repository**: https://github.com/Cloakworks-collective/shogun-weather-oracle
-- **Acurast Decentralized Keeper Repository**: https://github.com/Cloakworks-collective/shogun-keeper
-- **Backup Cron Job Repository for Demo**: https://github.com/Cloakworks-collective/shogun_backup_cron
+- **Acurast Weather Oracle Github Repository**: https://github.com/Cloakworks-collective/shogun-weather-oracle
+- **Acurast Decentralized Keeper Github Repository**: https://github.com/Cloakworks-collective/shogun-keeper
+- **Backup Cron Job Github Repository**: https://github.com/Cloakworks-collective/shogun_backup_cron
 
 ## Introduction
 
@@ -51,7 +51,7 @@ Acurast is a decentralized and trustless compute execution layer, leveraging Tru
 
 On Aptos, fetching non-price feed data can be difficult. However, we believe that Aptos smart contracts can receive Web2 API data through Acurast TEE processors with minimal trust assumptions. As a result, we decided to run scripts containing the [aptos-ts-sdk](https://github.com/aptos-labs/aptos-ts-sdk) inside Acurast processors.
 
-For our proof of concept, we deployed nodejs script on a Acurast processor fetches that weather data from [openweathermap api](https://openweathermap.org/current). Assuming that the data from Openweather API is correct, the data is forwarded to the game smart contract (move module) without additional trust overhead. It is signed by a preassigned weatherman, verifying that the incoming data comes from the acurast processor. 
+For our proof of concept, we deployed nodejs script on a Acurast processor that fetches weather data from [openweathermap api](https://openweathermap.org/current). Assuming that the data from Openweather API is correct, the data is forwarded to the game smart contract (move module) without additional trust overhead. It is signed by a preassigned weatherman, verifying that the incoming data comes from the acurast processor. 
 
 The acurast data sets the weather condition to one of the following options, based on the [weather condition codes of the api](https://openweathermap.org/weather-conditions)
 
