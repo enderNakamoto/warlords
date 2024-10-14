@@ -34,6 +34,7 @@ export default function Defense() {
   const [cavalryCount, setCavalryCount] = useState(0);
   const MAX_TROOPS = 1600;
   const { account, signAndSubmitTransaction } = useWallet();
+  const [reload, setReload] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchCastleDetails = async () => {
@@ -51,7 +52,7 @@ export default function Defense() {
     };
 
     fetchCastleDetails();
-  }, []);
+  }, [reload]);
 
   const handleDefend = async () => {
     if (!account) {
@@ -89,6 +90,7 @@ export default function Defense() {
         title: "Success",
         description: `Defense army changed! Transaction hash: ${hash}`,
       });
+      setReload(!reload);
     } catch (error: any) {
       toast({
         variant: "destructive",
