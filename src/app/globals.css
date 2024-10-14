@@ -116,3 +116,7 @@
 .landing-slider img{
   cursor: pointer;
 }
+
+.vertical-line {
+  border-right: 2px solid rgb(110, 110, 110);
+}

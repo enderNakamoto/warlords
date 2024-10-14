@@ -13,6 +13,9 @@ export default function Header() {
         </div>
       </Link>
       <nav className="ml-auto flex gap-4 sm:gap-6 mr-12">
+        <Link className="text-md font-medium hover:underline underline-offset-4" href="#waitlist">
+          Waitlist
+        </Link>
         <Link className="text-md font-medium hover:underline underline-offset-4" href="#features">
           Features
         </Link>
@@ -21,9 +24,6 @@ export default function Header() {
         </Link>
         <Link className="text-md font-medium hover:underline underline-offset-4" href="#weather">
           Weather
-        </Link>
-        <Link className="text-md font-medium hover:underline underline-offset-4" href="#waitlist">
-          Waitlist
         </Link>
       </nav>
       <Link href="/dashboard">
