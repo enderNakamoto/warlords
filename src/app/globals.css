@@ -87,8 +87,16 @@
   letter-spacing: 0.3em;
 }
 
+.play-btn {
+  border-radius: 3px;
+}
+
 .social-link {
   bottom: 15px;
+}
+
+.round-btn {
+  border-radius: 3px;
 }
 
 @keyframes fadeIn {
@@ -98,4 +106,13 @@
 
 .animate-fade-in {
   animation: fadeIn 0.7s ease-out;
+}
+
+.landing-slider {
+  width: 100%;
+  overflow: hidden;
+}
+
+.landing-slider img{
+  cursor: pointer;
 }

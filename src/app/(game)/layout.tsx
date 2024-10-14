@@ -31,7 +31,7 @@ export default function GameLayout({ children }: { children: ReactNode }) {
           <Link href="/">
             <div className="flex items-center mb-8">
               <Image src={logo} width={75} height={75} quality={100} alt="Shogun logo" className="mr-2" />
-              <h1 className="text-xl font-bold text-gray-400">Shogun</h1>
+              <h1 className="text-xl font-bold text-gray-400 hover:text-white">Shogun</h1>
             </div>
           </Link>
           <nav>
