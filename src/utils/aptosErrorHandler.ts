@@ -44,10 +44,13 @@ export const handleAptosError = (error: any) => {
             case 7: // ERR_TICK_TOO_SOON
                 console.error("Aptos API Error:", "ERR_TICK_TOO_SOON", status);
                 return "The last tick was too soon, minimum interval needs to pass.";
-            case 8: // ERR_ALREADY_JOINED
+            case 8: // ERR_WEATHER_CHANGE_TOO_SOON
+                console.error("Aptos API Error:", "ERR_WEATHER_CHANGE_TOO_SOON", status);
+                return "The last weather change was too soon, minimum interval needs to pass.";
+            case 9: // ERR_ALREADY_JOINED
                 console.error("Aptos API Error:", "ERR_ALREADY_JOINED", status);
                 return "Player has already joined the game.";
-            case 9: // ERR_NOT_JOINED
+            case 10: // ERR_NOT_JOINED
                 console.error("Aptos API Error:", "ERR_NOT_JOINED", status);
                 return "Player has not joined the game yet.";
             default:
