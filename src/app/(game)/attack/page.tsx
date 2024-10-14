@@ -325,7 +325,7 @@ export default function Attack() {
                 >
                   MOBILIZE
                 </Button>
-                <i>Cost: 3 turns</i>
+                <i>Cost: 1 turn</i>
               </div>
             </CardContent>
           </Card>
@@ -341,7 +341,7 @@ export default function Attack() {
               <Swords className="mr-2" /> ATTACK <Swords className="ml-2" />
             </Button>
             <br />
-            <i>Cost: 10 turns</i>
+            <i>Cost: 3 turns</i>
           </div>
         </>
       )}

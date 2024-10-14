@@ -230,7 +230,7 @@ export default function Defense() {
               >
                 CHANGE
               </Button>
-              <i>Cost: 3 turns</i>
+              <i>Cost: 0 turns</i>
             </div>
           </CardContent>
         </Card>

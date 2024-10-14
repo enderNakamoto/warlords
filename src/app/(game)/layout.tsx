@@ -8,7 +8,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import logo from "../../../images/shogun_logo.png";
+import logo from "../../../images/shogun_japan.png";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { WalletSelector } from "../../components/WalletSelector";
 import { usePathname } from "next/navigation";
@@ -30,8 +30,8 @@ export default function GameLayout({ children }: { children: ReactNode }) {
         <aside className="w-64 bg-gray-800 p-4 relative">
           <Link href="/">
             <div className="flex items-center mb-8">
-              <Image src={logo} width={40} height={40} alt="Shogun logo" className="mr-2" />
-              <h1 className="text-2xl font-bold">Shogun</h1>
+              <Image src={logo} width={75} height={75} quality={100} alt="Shogun logo" className="mr-2" />
+              <h1 className="text-xl font-bold text-gray-400">Shogun</h1>
             </div>
           </Link>
           <nav>
