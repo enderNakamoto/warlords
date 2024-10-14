@@ -2,9 +2,6 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { ChevronRight } from "lucide-react";
 import shogun from "../../../images/shogun.png";
 import cover from "../../../images/cover.png";
 import atk from "../../../images/samurai_atk.png";
@@ -68,18 +65,6 @@ export default function Hero() {
       <section className="flex flex-col justify-center items-center mt-8">
         <h3 className="text-2xl font-bold text-gray-300">A Decentralized Game Built On APTOS Blockchain</h3>
         <h3 className="text-lg font-bold text-gray-300">« LIVE ON TESTNET »</h3>
-        <p className="mx-auto text-gray-200 italic text-wrap w-[400px] mx-auto mt-12 text-center">
-          Become the Shogun. Rule ancient Japan in this epic blockchain game. Build and lead your army, attack the
-          castle and claim your destiny!
-        </p>
-        <Link href="/dashboard" className="my-8">
-          <div className="space-x-4">
-            <Button className="play-btn bg-yellow-600 text-white hover:bg-gray-600">
-              PLAY NOW
-              <ChevronRight className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
-        </Link>
       </section>
     </div>
   );

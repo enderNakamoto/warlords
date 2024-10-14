@@ -15,10 +15,10 @@ export function Landing() {
       <main>
         <Hero />
         <Trailer />
+        <Waitlist />
         <Features />
         <Troops />
         <Weather />
-        <Waitlist />
       </main>
       <Footer />
       <Top />
