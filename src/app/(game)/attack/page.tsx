@@ -37,6 +37,7 @@ export default function Attack() {
   const [cavalryCount, setCavalryCount] = useState(0);
   const MAX_TROOPS = 2000;
   const { account, signAndSubmitTransaction } = useWallet();
+  const [reload, setReload] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchPlayerState = async () => {
@@ -57,7 +58,7 @@ export default function Attack() {
     };
 
     fetchPlayerState();
-  }, [account]);
+  }, [account, reload]);
 
   const handleJoinGame = async (e: any) => {
     e.preventDefault();
@@ -84,6 +85,7 @@ export default function Attack() {
         title: "Success",
         description: `Joined the game! Transaction hash: ${hash}`,
       });
+      setReload(!reload);
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -129,6 +131,7 @@ export default function Attack() {
         title: "Success",
         description: `Army mobilized! Transaction hash: ${hash}`,
       });
+      setReload(!reload);
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -322,7 +325,7 @@ export default function Attack() {
                 >
                   MOBILIZE
                 </Button>
-                <i>Cost: 3 turns</i>
+                <i>Cost: 1 turn</i>
               </div>
             </CardContent>
           </Card>
@@ -338,7 +341,7 @@ export default function Attack() {
               <Swords className="mr-2" /> ATTACK <Swords className="ml-2" />
             </Button>
             <br />
-            <i>Cost: 10 turns</i>
+            <i>Cost: 3 turns</i>
           </div>
         </>
       )}
