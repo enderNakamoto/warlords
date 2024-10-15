@@ -285,10 +285,11 @@ module warlords_addr::warlords {
     // ======================== Read Functions ========================
 
     #[view]
-    public fun get_castle_info(): (address, Army, u8, u64, u64) acquires GameState {
+    public fun get_castle_info(): (address, String, Army, u8, u64, u64) acquires GameState {
         let game_state = borrow_global<GameState>(@warlords_addr);
         (
             game_state.castle.king,
+            game_state.castle.king_name,
             game_state.castle.defense,
             game_state.castle.weather.value,
             game_state.castle.weather.last_weather_change,
