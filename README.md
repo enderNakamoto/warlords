@@ -122,6 +122,9 @@ We use the Indexer API for our leaderboard. The architecture is as follows:
 This setup continuously updates the leaderboard based on real-time blockchain events.
 This is the cron job that runs every minute 
 - https://github.com/Cloakworks-collective/shogun-rankings/blob/main/src/index.js
+
+Note: Graphql query timesout if we dont specify filter on transactions, that is why we keep track of transactions processed and look for new transactions every 1 minute.
+
 ## Test Coverage 
 
 Our smart contract (Warlord Module) has comprehensive test coverage. We have implemented unit tests for all public entry functions, ensuring that key aspects of the game function as intended. To simulate different outcomes, we mock the randomness API to test various conditions where either the attacker or defender wins. Additionally, we mock weather conditions to thoroughly test how battles play out under different weather scenarios.
