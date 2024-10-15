@@ -21,12 +21,14 @@ import { getPlayerState } from "@/view-functions/getPlayerDetails";
 import { getLastTurnsUpdateTime } from "@/view-functions/getTurnsUpdateTime";
 import { getTopPlayerScore } from "@/view-functions/getTopPlayerPoints";
 import { handleAptosError } from "@/utils/aptosErrorHandler";
+import Link from "next/link";
 import Image from "next/image";
 import cover from "../../../../images/cover.png";
 import shogun from "../../../../images/shogun.png";
 
 interface CastleDetails {
   kingAddress: string;
+  kingName: string;
   weatherValue: number;
   lastWeatherChange: number;
   lastKingChange: number;
@@ -48,6 +50,7 @@ export default function Dashboard() {
   const [lastTurnsUpdate, setLastTurnsUpdate] = useState<number | string>("-");
   const [topPlayerPoints, setTopPlayerPoints] = useState<number | string>("-");
   const { account } = useWallet();
+  const MULTIPLIER = 100;
 
   useEffect(() => {
     const fetchCastleDetails = async () => {
@@ -229,7 +232,7 @@ export default function Dashboard() {
                   <p className="text-base text-gray-400">Ranking Points</p>
                   <div className="flex items-center">
                     <Medal className="h-6 w-6 mr-2 text-orange-500" />
-                    <span className="text-2xl font-bold text-orange-500">{playerState.points}</span>
+                    <span className="text-2xl font-bold text-orange-500">{playerState.points * MULTIPLIER}</span>
                   </div>
                 </div>
                 <div>
@@ -240,7 +243,9 @@ export default function Dashboard() {
                 </div>
                 <div>
                   <p className="text-base text-gray-400">Current Leader Points</p>
-                  <p className="text-xl font-bold text-green-600">{topPlayerPoints}</p>
+                  <p className="text-xl font-bold text-green-600">
+                    {Number(topPlayerPoints) ? Number(topPlayerPoints) * MULTIPLIER : topPlayerPoints}
+                  </p>
                 </div>
               </div>
             </>
@@ -273,8 +278,20 @@ export default function Dashboard() {
                 <p className="text-base text-gray-400">Current King</p>
                 <div className="flex items-center">
                   <Crown className="h-6 w-6 text-red-500 mr-2" />
-                  <span className="text-2xl font-bold text-red-500">{trimAddress(castleDetails.kingAddress)}</span>
+
+                  <Link
+                    href={
+                      "https://explorer.aptoslabs.com/account/" +
+                      castleDetails.kingAddress +
+                      "?network=" +
+                      (process.env.NEXT_PUBLIC_APP_NETWORK ?? "testnet")
+                    }
+                    target="_blank"
+                  >
+                    <span className="text-2xl font-bold text-red-500">{trimAddress(castleDetails.kingAddress)}</span>
+                  </Link>
                 </div>
+                <span className="text-2xl font-bold text-red-500">{castleDetails.kingName}</span>
               </div>
               <div>
                 <p className="text-base text-gray-400">Last Weather Update</p>

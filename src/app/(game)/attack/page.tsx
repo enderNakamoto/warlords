@@ -44,6 +44,7 @@ export default function Attack() {
       if (!account) return;
 
       setLoadingPlayerState(true);
+      setPlayerError(null);
 
       try {
         const state = await getPlayerState(account.address);
