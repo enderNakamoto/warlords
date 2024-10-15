@@ -8,7 +8,7 @@ export default function Trailer() {
       <div className="flex flex-col lg:flex-row">
         <div className="w-full lg:w-1/2 p-4 vertical-line max-lg:border-0">
           <div className="flex flex-col items-center">
-            <p className="mx-auto text-gray-200 italic text-wrap w-[400px] mx-auto mt-12 text-center">
+            <p className="mx-auto text-gray-200 italic text-wrap w-[400px] mx-auto mt-12 text-center content-fit">
               Become the Shogun. Rule ancient Japan in this epic blockchain game. Build and lead your army, attack the
               castle and claim your destiny!
             </p>
@@ -24,7 +24,7 @@ export default function Trailer() {
         </div>
         <div className="w-full lg:w-1/2 p-4">
           <div className="px-4 lg:px-6 flex flex-col">
-            <p className="mx-12 text-gray-200 text-wrap mt-12 text-center italic">
+            <p className="mx-auto text-gray-200 text-wrap mt-12 text-center italic">
               Set in the Edo period of Japan, the goal of Shogun is to seize control of Edo Castle. Real-time weather
               conditions in Tokyo (historically Edo) directly impact gameplay and strategy. For example, rain hinders
               cavalry charges but strengthens infantry, while clear skies provide a bonus to cavalry, enhancing their
