@@ -18,9 +18,9 @@ import cover from "../../../../images/samurai_atk.png";
 import shogun from "../../../../images/shogun.png";
 
 interface Army {
-  archers: string;
-  cavalry: string;
-  infantry: string;
+  archers: number;
+  cavalry: number;
+  infantry: number;
 }
 
 interface PlayerState {
@@ -125,7 +125,7 @@ export default function Attack() {
     }
 
     try {
-      const payload = mobilizeArmy({ archers: archerCount, infantry: infantryCount, cavalry: cavalryCount });
+      const payload = mobilizeArmy({ archers: archerCount, cavalry: cavalryCount, infantry: infantryCount });
       const { hash } = await signAndSubmitTransaction(payload);
 
       toast({

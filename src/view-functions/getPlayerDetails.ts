@@ -2,9 +2,9 @@ import { aptosClient } from "@/utils/aptosClient";
 import { MODULE_ADDRESS } from "@/constants";
 
 interface Army {
-  archers: string;
-  cavalry: string;
-  infantry: string;
+  archers: number;
+  cavalry: number;
+  infantry: number;
 }
 
 interface PlayerState {
