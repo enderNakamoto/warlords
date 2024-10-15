@@ -2,6 +2,7 @@ module warlords_addr::warlords {
 
     // ================================= Imports ================================= //
     use std::signer;
+    use std::string;
     use std::string::String;
     use std::vector;
     
@@ -30,6 +31,7 @@ module warlords_addr::warlords {
     // Global state of the castles that everyone tries to capture
     struct Castle has store {
         king: address,
+        king_name: String,
         defense: Army,
         weather: Weather,
         last_king_change: u64
@@ -84,10 +86,12 @@ module warlords_addr::warlords {
 
     fun init_module(sender: &signer) {
         let sender_addr = signer::address_of(sender);
+        let initial_name = string::utf8(b"Satoshi");
         
         move_to(sender, GameState {
             castle: Castle {
                 king: sender_addr,
+                king_name: initial_name,
                 defense: Army { archers: 500, cavalry: 500, infantry: 500 },
                 weather: Weather { value: constants::clear(), last_weather_change: timestamp::now_seconds() },
                 last_king_change: timestamp::now_seconds()
@@ -179,6 +183,7 @@ module warlords_addr::warlords {
         if (attacker_strength > defender_strength) {
             // Attacker wins
             game_state.castle.king = attacker_addr;
+            game_state.castle.king_name = attacker_state.general_name;
             game_state.castle.defense = default_defense_army;
             game_state.castle.last_king_change = timestamp::now_seconds();
             winner = attacker_addr;
