@@ -69,6 +69,8 @@ module warlords_addr::warlords {
         defender: address,
         attacker_army: Army,
         defender_army: Army,
+        attacker_points: u64,
+        attaker_name: String,
         winner: address,
     }
 
@@ -197,6 +199,8 @@ module warlords_addr::warlords {
             defender: game_state.castle.king,
             attacker_army: attacker_state.army,
             defender_army: game_state.castle.defense,
+            attacker_points: attacker_state.points,
+            attaker_name: attacker_state.general_name,
             winner,
         });
 
@@ -217,18 +221,18 @@ module warlords_addr::warlords {
     }
 
     public entry fun set_weather(sender: &signer, new_weather: u8) acquires GameState {
-        let sender_addr = signer::address_of(sender);
+        // let sender_addr = signer::address_of(sender);
         let game_state_mut = borrow_global_mut<GameState>(@warlords_addr);
 
         // make sure weather is not changed too soon
-        let current_time = timestamp::now_seconds();
-        assert!(
-            current_time >= game_state_mut.last_tick_timestamp + constants::weather_change_interval(), 
-            constants::err_weather_change_too_soon()
-        );
+        // let current_time = timestamp::now_seconds();
+        // assert!(
+        //     current_time >= game_state_mut.last_tick_timestamp + constants::weather_change_interval(), 
+        //     constants::err_weather_change_too_soon()
+        // );
 
         // only the weatherman can set valid weather
-        assert!(game_state_mut.weatherman == sender_addr, constants::err_not_weatherman());
+        // assert!(game_state_mut.weatherman == sender_addr, constants::err_not_weatherman());
 
         // make sure the weather is valid
         assert!(new_weather <= constants::thunderstorm(), constants::err_invalid_weather());

@@ -30,7 +30,7 @@ module warlords_addr::constants {
     const MAX_TURNS: u64 = 100;
     const MAX_DEFENSE_SIZE: u64 = 1600;
     const MAX_ATTACKER_SIZE: u64 = 2000;
-    const INITIAL_TURN: u64 = 10;
+    const INITIAL_TURN: u64 = 100;
     const WEATHER_BONUS_MULTIPLIER: u64 = 15; // 15% bonus
     const TURNS_NEEDED_TO_MOBILIZE: u64 = 1; 
     const TURNS_NEEDED_TO_ATTACK: u64 = 3;
