@@ -9,12 +9,13 @@ interface DefenseArmy {
 
 export const getCastleDetails = async (): Promise<{
   kingAddress: string;
+  kingName: string;
   defenseArmy: DefenseArmy;
   weatherValue: number;
   lastWeatherChange: number;
   lastKingChange: number;
 }> => {
-  const response = await aptosClient().view<[string, DefenseArmy, number, number, number]>({
+  const response = await aptosClient().view<[string, string, DefenseArmy, number, number, number]>({
     payload: {
       function: `${MODULE_ADDRESS}::warlords::get_castle_info`,
       typeArguments: [],
@@ -22,10 +23,11 @@ export const getCastleDetails = async (): Promise<{
     },
   });
 
-  const [kingAddress, defenseArmy, weatherValue, lastWeatherChange, lastKingChange] = response;
+  const [kingAddress, kingName, defenseArmy, weatherValue, lastWeatherChange, lastKingChange] = response;
 
   return {
     kingAddress,
+    kingName,
     defenseArmy,
     weatherValue,
     lastWeatherChange,
