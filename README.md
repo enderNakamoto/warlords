@@ -22,6 +22,7 @@ Set in the Edo period of Japan, the goal of *Shogun* is to seize control of Edo 
 
 - **Aptos Randomness API**: We incorporate the [Aptos randomness API](https://aptos.dev/en/build/smart-contracts/randomness) to add an element of chance to battles. Combined with weather dependency, this randomness creates a more dynamic, realistic, and enjoyable battle strategy experience.
 
+- **Indexer API**: We used Nodit's Indexer API and Module events to build our leaderboard. 
 
 ## Game Architecture
 
