@@ -15,9 +15,9 @@ import cover from "../../../../images/samurai_def.png";
 import shogun from "../../../../images/shogun.png";
 
 interface DefenseArmy {
-  archers: string;
-  cavalry: string;
-  infantry: string;
+  archers: number;
+  cavalry: number;
+  infantry: number;
 }
 
 interface CastleDetails {
@@ -83,7 +83,7 @@ export default function Defense() {
     }
 
     try {
-      const payload = defend({ archers: archerCount, infantry: infantryCount, cavalry: cavalryCount });
+      const payload = defend({ archers: archerCount, cavalry: cavalryCount, infantry: infantryCount });
       const { hash } = await signAndSubmitTransaction(payload);
 
       toast({

@@ -3,16 +3,16 @@ import { MODULE_ADDRESS } from "@/constants";
 
 export type MobilizeArmyArguments = {
   archers: number;
-  infantry: number;
   cavalry: number;
+  infantry: number;
 };
 
 export const mobilizeArmy = (args: MobilizeArmyArguments): InputTransactionData => {
-  const { archers, infantry, cavalry } = args;
+  const { archers, cavalry, infantry } = args;
   return {
     data: {
       function: `${MODULE_ADDRESS}::warlords::mobilize`,
-      functionArguments: [archers, infantry, cavalry],
+      functionArguments: [archers, cavalry, infantry],
     },
   };
 };

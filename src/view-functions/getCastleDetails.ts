@@ -2,9 +2,9 @@ import { aptosClient } from "@/utils/aptosClient";
 import { MODULE_ADDRESS } from "@/constants"
 
 interface DefenseArmy {
-  archers: string;
-  cavalry: string;
-  infantry: string;
+  archers: number;
+  cavalry: number;
+  infantry: number;
 }
 
 export const getCastleDetails = async (): Promise<{
