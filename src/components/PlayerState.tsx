@@ -4,9 +4,9 @@ import { getPlayerState } from "@/view-functions/getPlayerDetails";
 import { toast } from "@/components/ui/use-toast";
 
 interface Army {
-  archers: string;
-  cavalry: string;
-  infantry: string;
+  archers: number;
+  cavalry: number;
+  infantry: number;
 }
 
 interface PlayerState {
