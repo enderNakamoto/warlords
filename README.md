@@ -102,12 +102,6 @@ To maintain fairness, we use the Aptos Randomness API, which gives defenders a 6
 
 The current Shogun can also continually adjust their defending army composition to strengthen their hold on the castle and prolong their reign.
 
-## Test Coverage 
-
-Our smart contract (Warlord Module) has comprehensive test coverage. We have implemented unit tests for all public entry functions, ensuring that key aspects of the game function as intended. To simulate different outcomes, we mock the randomness API to test various conditions where either the attacker or defender wins. Additionally, we mock weather conditions to thoroughly test how battles play out under different weather scenarios.
-
-![alt text](images/test_coverage.png)
-
 ## Indexer API Usage for rankings 
 
 We use the Indexer API for our leaderboard. The architecture is as follows: 
@@ -120,6 +114,12 @@ We use the Indexer API for our leaderboard. The architecture is as follows:
 4. The Next.js frontend queries this database and displays a leaderboard, sorted by points in descending order.
 
 This setup continuously updates the leaderboard based on real-time blockchain events.
+
+## Test Coverage 
+
+Our smart contract (Warlord Module) has comprehensive test coverage. We have implemented unit tests for all public entry functions, ensuring that key aspects of the game function as intended. To simulate different outcomes, we mock the randomness API to test various conditions where either the attacker or defender wins. Additionally, we mock weather conditions to thoroughly test how battles play out under different weather scenarios.
+
+![alt text](images/test_coverage.png)
 
 ## Future Game Enhancements
 
