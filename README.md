@@ -1,14 +1,20 @@
 ![alt text](images/cover.png)
 
-## Game Links
-- **Main Game GitHub Repository**: [https://github.com/enderNakamoto/warlords](https://github.com/enderNakamoto/warlords)
+## Tracks and Bounties Applied for 
+* Track 1 - **Gaming/NFT**: We created a fully on-chain game with weather data, and randomness API 
+* Track 2 -**AI/Depin**: We introduced Acurast Oracles to Aptos Ecosystem, Acurast runs on old used phone clusters. (more in the details below!)
+* Bounty 1 - **Aptos Indexer Challenge with NODIT**: We used Indexer API and Events to build our game leaderboard - [Github](https://github.com/Cloakworks-collective/shogun-rankings)
+* Bounty 2 - **UI Challenge**: We build a fully functionsal frontend for our game. [Play here](https://warlords.vercel.app/)
+* Bounty 3 - **Foresight's Choice**: It is a consumer facing game! 
+
+## Project Links
+- **Main Repository**: [Github](https://github.com/enderNakamoto/warlords)
 - **Website**: [https://warlords.vercel.app/](https://warlords.vercel.app/)
-- **Presentation Google SLides**:https://docs.google.com/presentation/d/e/2PACX-1vTPDKKdjG6MbdqS16YsyjS1_vX8WBNADJ3gW9fk8CH7cdoQgRbTPZqyRKDxxeBOqoJCI2zJ_8em-j5l/pub?start=false&loop=false&delayms=30000
-- **Testnet Address**: [https://explorer.aptoslabs.com/object/0xee1dada4f9bbce01099f0bf865475f3a273f63afb02e473005ef289ceed5c44c/modules/code/warlords?network=testnet](https://explorer.aptoslabs.com/object/0xee1dada4f9bbce01099f0bf865475f3a273f63afb02e473005ef289ceed5c44c/modules/code/warlords?network=testnet)
-- **Acurast Weather Oracle Github Repository**: https://github.com/Cloakworks-collective/shogun-weather-oracle
-- **Acurast Decentralized Keeper Github Repository**: https://github.com/Cloakworks-collective/shogun-keeper
-- **Backup Cron Job Github Repository**: https://github.com/Cloakworks-collective/shogun_backup_cron
-- **Indexer Code for Leaderboard**: https://github.com/Cloakworks-collective/shogun-rankings
+- **Presentation**: [Slides](https://docs.google.com/presentation/d/e/2PACX-1vTPDKKdjG6MbdqS16YsyjS1_vX8WBNADJ3gW9fk8CH7cdoQgRbTPZqyRKDxxeBOqoJCI2zJ_8em-j5l/pub?start=false&loop=false&delayms=30000)
+- **Testnet Deployment**: [Explorer](https://explorer.aptoslabs.com/object/0xc7c5e95331b975a16f0f14982506d8df7fd42bfdae0a01d510f8ebeab69c8db7/resources?network=testnet)
+- **Acurast Weather Oracle Repository**: [Github](https://github.com/Cloakworks-collective/shogun-weather-oracle)
+- **Acurast Keeper Repository**: [Github](https://github.com/Cloakworks-collective/shogun-keeper)
+- **Indexer Code for Leaderboard**: [Github](https://github.com/Cloakworks-collective/shogun-rankings)
 
 ## Introduction
 
