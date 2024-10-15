@@ -3,9 +3,9 @@ import { getCastleDetails } from "@/view-functions/getCastleDetails";
 
 // Add this interface
 interface DefenseArmy {
-  archers: string;
-  cavalry: string;
-  infantry: string;
+  archers: number;
+  cavalry: number;
+  infantry: number;
 }
 
 interface CastleDetails {
