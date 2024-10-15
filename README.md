@@ -8,7 +8,7 @@
 - **Acurast Weather Oracle Github Repository**: https://github.com/Cloakworks-collective/shogun-weather-oracle
 - **Acurast Decentralized Keeper Github Repository**: https://github.com/Cloakworks-collective/shogun-keeper
 - **Backup Cron Job Github Repository**: https://github.com/Cloakworks-collective/shogun_backup_cron
-
+- **Indexer Code for Leaderboard**: https://github.com/Cloakworks-collective/shogun-rankings
 
 ## Introduction
 
@@ -22,6 +22,7 @@ Set in the Edo period of Japan, the goal of *Shogun* is to seize control of Edo 
 
 - **Aptos Randomness API**: We incorporate the [Aptos randomness API](https://aptos.dev/en/build/smart-contracts/randomness) to add an element of chance to battles. Combined with weather dependency, this randomness creates a more dynamic, realistic, and enjoyable battle strategy experience.
 
+- **Indexer API**: We used Nodit's Indexer API and Module events to build our leaderboard. 
 
 ## Game Architecture
 
@@ -106,6 +107,19 @@ The current Shogun can also continually adjust their defending army composition 
 Our smart contract (Warlord Module) has comprehensive test coverage. We have implemented unit tests for all public entry functions, ensuring that key aspects of the game function as intended. To simulate different outcomes, we mock the randomness API to test various conditions where either the attacker or defender wins. Additionally, we mock weather conditions to thoroughly test how battles play out under different weather scenarios.
 
 ![alt text](images/test_coverage.png)
+
+## Indexer API Usage for rankings 
+
+We use the Indexer API for our leaderboard. The architecture is as follows: 
+
+![alt text](images/leaderboard.png)
+
+1. A smart contract emits an AttackEvent with player data (attacker, defender, points, etc.).
+2. A cron job uses the Indexer API to fetch these events via a GraphQL query.
+3. The cron job extracts player information (address, points, name) and stores it in a Firebase database.
+4. The Next.js frontend queries this database and displays a leaderboard, sorted by points in descending order.
+
+This setup continuously updates the leaderboard based on real-time blockchain events.
 
 ## Future Game Enhancements
 
